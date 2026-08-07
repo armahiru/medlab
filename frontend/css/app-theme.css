@@ -1,0 +1,439 @@
+/**
+ * MediChain — wellness medical UI
+ * Forest green header band + bright white curved content
+ */
+
+:root {
+  --app-shadow: 0 12px 32px rgba(15, 61, 46, 0.1);
+  --app-shadow-sm: 0 4px 14px rgba(15, 61, 46, 0.07);
+}
+
+body {
+  background: var(--med-green);
+}
+
+/* Green shell with white “bubble” content */
+.app-shell {
+  min-height: 100vh;
+}
+
+.app-main {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  margin-top: var(--space-03);
+  margin-left: calc(var(--sidebar-width) + var(--space-04));
+  margin-right: var(--space-05);
+  margin-bottom: var(--space-05);
+  max-width: none;
+  border-radius: 32px 32px 24px 24px;
+  box-shadow: var(--app-shadow);
+  min-height: calc(100dvh - var(--header-offset) - var(--space-06));
+  padding: var(--space-07) var(--space-06) var(--space-08);
+}
+
+/* Top bar — solid green */
+.app-header {
+  position: fixed;
+  z-index: 8000;
+  background: var(--med-green);
+  border-bottom: none;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.app-header::after {
+  display: none;
+}
+
+.app-header__brand,
+.app-header__brand:hover {
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.app-header__brand-icon {
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  fill: #ffffff;
+  box-shadow: none;
+}
+
+.app-header__menu-btn {
+  color: #ffffff;
+}
+
+.app-header__link {
+  color: rgba(255, 255, 255, 0.78);
+  border-radius: var(--med-radius-pill);
+}
+
+.app-header__link:hover,
+.app-header__link--active {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+}
+
+.app-header__user {
+  border-left-color: rgba(255, 255, 255, 0.2);
+}
+
+.app-header__user-name {
+  color: #ffffff;
+}
+
+.app-header__role-tag {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+.app-header .btn--ghost {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.app-header .btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff !important;
+}
+
+/* Sidebar — dark green panel */
+.app-sidebar {
+  position: fixed;
+  background: var(--med-green);
+  border-right: none;
+  box-shadow: none;
+  color: #ffffff;
+  padding-top: var(--space-04);
+}
+
+@media (min-width: 769px) {
+  .app-sidebar {
+    z-index: 100;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    z-index: 7600;
+  }
+}
+
+.app-sidebar__profile {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+.profile-avatar {
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: none;
+  color: #ffffff;
+}
+
+.profile-card__name {
+  color: #ffffff;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+
+.profile-card__role {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.profile-card__actions {
+  border-top-color: rgba(255, 255, 255, 0.14);
+}
+
+.profile-card__action {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.profile-card__action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.profile-card__action--muted {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.profile-card__action--muted:hover {
+  color: #ffffff;
+}
+
+.app-sidebar__heading {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.app-sidebar__link {
+  color: rgba(255, 255, 255, 0.82);
+  border-radius: var(--med-radius-sm);
+}
+
+.app-sidebar__link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.app-sidebar__link--active {
+  background: #ffffff;
+  color: var(--med-green);
+  font-weight: 700;
+  box-shadow: none;
+}
+
+.app-sidebar__link--active svg {
+  opacity: 1;
+}
+
+/* Page headers inside white bubble */
+.page-header {
+  position: relative;
+  overflow: visible;
+  background: var(--med-mint);
+  border: none;
+  border-radius: var(--med-radius);
+  box-shadow: none;
+  padding: var(--space-06);
+  margin-bottom: var(--space-06);
+}
+
+.page-header::before {
+  display: none;
+}
+
+.page-header__title {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--med-green);
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+}
+
+.page-eyebrow {
+  color: var(--med-green-bright);
+  letter-spacing: 0.12em;
+}
+
+.page-header__subtitle {
+  color: var(--carbon-text-secondary);
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid var(--carbon-border-subtle);
+  border-radius: var(--med-radius);
+  box-shadow: var(--app-shadow-sm);
+  backdrop-filter: none;
+}
+
+.card:hover {
+  box-shadow: var(--app-shadow);
+}
+
+.card__title {
+  color: var(--med-green);
+  border-bottom-color: var(--carbon-border-subtle);
+}
+
+.data-table-wrapper {
+  background: #ffffff;
+  border: 1px solid var(--carbon-border-subtle);
+  border-radius: var(--med-radius);
+  box-shadow: var(--app-shadow-sm);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.data-table thead {
+  background: var(--med-soft, var(--med-mint));
+}
+
+.data-table th {
+  color: var(--med-green);
+}
+
+.data-table tbody tr:hover {
+  background: var(--med-mint);
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid var(--carbon-border-subtle);
+  border-radius: var(--med-radius);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.stat-card::after {
+  display: none;
+}
+
+.stat-card__label {
+  color: var(--carbon-text-secondary);
+}
+
+.stat-card__value {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  color: var(--med-green);
+}
+
+.stat-card__value--success { color: var(--carbon-success); }
+.stat-card__value--error { color: var(--carbon-error); }
+
+.btn {
+  border-radius: var(--med-radius-pill);
+}
+
+.btn--primary {
+  background: var(--med-green);
+  border: none;
+  box-shadow: 0 6px 16px rgba(15, 61, 46, 0.22);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: var(--carbon-interactive-hover);
+  transform: none;
+  box-shadow: 0 8px 18px rgba(15, 61, 46, 0.28);
+}
+
+.btn--secondary {
+  background: #ffffff;
+  border-color: var(--med-green);
+  color: var(--med-green);
+  box-shadow: none;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--med-green);
+  color: #ffffff;
+}
+
+.btn--ghost:hover:not(:disabled) {
+  background: var(--med-soft, var(--med-mint));
+}
+
+.table-actions .btn--sm {
+  border-radius: var(--med-radius-pill);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  background: #ffffff;
+  border: 1px solid var(--carbon-border-subtle);
+  border-radius: var(--med-radius-pill);
+  min-height: 48px;
+  padding-left: var(--space-05);
+  padding-right: var(--space-05);
+}
+
+.form-textarea {
+  border-radius: var(--med-radius-sm);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: var(--med-green-bright);
+  box-shadow: 0 0 0 3px rgba(27, 107, 74, 0.16);
+}
+
+.notification {
+  border-radius: var(--med-radius-sm);
+  box-shadow: var(--app-shadow-sm);
+}
+
+.modal {
+  background: #ffffff;
+  border-radius: var(--med-radius);
+  box-shadow: 0 28px 56px rgba(15, 61, 46, 0.22);
+  backdrop-filter: none;
+}
+
+.modal__title {
+  color: var(--med-green);
+}
+
+.info-panel {
+  background: var(--med-mint);
+  border-color: var(--carbon-border-subtle);
+  border-left-color: var(--med-green);
+  border-radius: var(--med-radius-sm);
+}
+
+.verify-tabs {
+  background: var(--med-mint);
+  border-radius: var(--med-radius-pill);
+  border-bottom: none;
+  padding: 4px;
+  gap: 4px;
+}
+
+.verify-tab {
+  border-radius: var(--med-radius-pill);
+  border-bottom: none !important;
+  font-weight: 700;
+}
+
+.verify-tab.is-active {
+  background: var(--med-green);
+  color: #ffffff;
+}
+
+.patient-chip__avatar {
+  border-radius: 12px;
+  background: var(--med-mint);
+  color: var(--med-green);
+  border-color: var(--carbon-border-subtle);
+}
+
+.tag {
+  border-radius: var(--med-radius-pill);
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    margin: var(--space-03) !important;
+    margin-left: var(--space-03) !important;
+    margin-right: var(--space-03) !important;
+    width: auto;
+    max-width: calc(100vw - (var(--space-03) * 2));
+    border-radius: 28px 28px 20px 20px;
+    padding: var(--space-05);
+    min-height: calc(100dvh - var(--header-offset) - var(--bottom-safe) - var(--space-05));
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .page-header {
+    padding: var(--space-05);
+    max-width: 100%;
+  }
+
+  .page-header__title {
+    font-size: 1.75rem;
+    word-break: break-word;
+  }
+
+  .page-header__subtitle {
+    font-size: var(--font-size-sm);
+    word-break: break-word;
+  }
+}
+
+/* When sidebar is hidden (public verify), bubble spans full width */
+.app-main.app-main--solo {
+  margin-left: var(--space-05);
+}

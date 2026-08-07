@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Upload Medical Report — MediChain</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+  <link rel="stylesheet" href="css/concept.css">
+</head>
+<body>
+  <header id="app-header" class="app-header"></header>
+
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <div class="page-header">
+        <p class="page-eyebrow">Clinical uploader</p>
+        <h1 class="page-header__title">Seal Medical Report</h1>
+        <p class="page-header__subtitle">Select a registered patient, attach the clinical file, and seal it onto the medical chain. The patient is notified automatically.</p>
+      </div>
+
+      <div id="notification-area"></div>
+
+      <div class="info-panel">
+        <h3 class="info-panel__title">What happens when you seal</h3>
+        <p class="info-panel__text">
+          1) File → SHA-256 hash 2) Metadata + hash → new block 3) Block linked to previousHash 4) Patient alert created.
+        </p>
+      </div>
+
+      <div class="card">
+        <h2 class="card__title">Medical Report Details</h2>
+        <p class="card__subtitle">Required fields must match a registered patient so they can open the report in their inbox.</p>
+
+        <form id="upload-form" novalidate>
+          <div class="form-section">
+            <h3 class="form-section__title">Patient information</h3>
+            <div class="form-grid">
+              <div class="form-group form-group--full">
+                <label class="form-label" for="patient-select">Registered patient</label>
+                <select class="form-select" id="patient-select" aria-label="Select registered patient">
+                  <option value="">Select patient…</option>
+                </select>
+                <span class="form-helper">Choosing a patient fills Patient ID and name. You can still type manually if needed.</span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="patient-id">Patient ID</label>
+                <input class="form-input" type="text" id="patient-id" name="patientId" required list="patient-id-list" placeholder="e.g. PAT-2026-0142" autocomplete="off">
+                <datalist id="patient-id-list"></datalist>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="patient-name">Patient name</label>
+                <input class="form-input" type="text" id="patient-name" name="patientName" required placeholder="Patient full name">
+              </div>
+            </div>
+          </div>
+
+          <!-- Report -->
+          <div class="form-section">
+            <h3 class="form-section__title">Report information</h3>
+            <div class="form-grid">
+              <div class="form-group form-group--full">
+                <label class="form-label" for="title">Report title</label>
+                <input class="form-input" type="text" id="title" name="title" required placeholder="e.g. Complete Blood Count — Follow-up">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="report-type">Report type</label>
+                <select class="form-select" id="report-type" name="reportType" required>
+                  <option value="">Select report type</option>
+                  <option value="Lab Result">Lab Result</option>
+                  <option value="Radiology">Radiology Report</option>
+                  <option value="Discharge Summary">Discharge Summary</option>
+                  <option value="Prescription">Prescription</option>
+                  <option value="Pathology">Pathology Report</option>
+                  <option value="Operation Notes">Operation Notes</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="department">Department</label>
+                <select class="form-select" id="department" name="department" required>
+                  <option value="">Select department</option>
+                  <option value="Laboratory">Laboratory</option>
+                  <option value="Radiology">Radiology</option>
+                  <option value="Cardiology">Cardiology</option>
+                  <option value="Oncology">Oncology</option>
+                  <option value="General Medicine">General Medicine</option>
+                  <option value="Emergency">Emergency</option>
+                  <option value="Surgery">Surgery</option>
+                  <option value="Pediatrics">Pediatrics</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="report-date">Report date</label>
+                <input class="form-input" type="date" id="report-date" name="reportDate" required>
+              </div>
+
+              <div class="form-group form-group--full">
+                <label class="form-label" for="description">Clinical notes / description</label>
+                <textarea class="form-textarea" id="description" name="description" placeholder="Brief clinical summary or notes for this report (optional)"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- File -->
+          <div class="form-section">
+            <h3 class="form-section__title">Report file</h3>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" for="file">Attach medical report document</label>
+              <div class="file-uploader" id="file-drop-zone">
+                <input type="file" id="file" name="file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.txt">
+                <p class="file-uploader__label">Drag and drop the report file here, or click to browse</p>
+                <p class="file-uploader__label" style="font-size: var(--font-size-xs); margin-top: var(--space-02);">
+                  Supported: PDF, DOC, DOCX, JPG, PNG, TXT
+                </p>
+                <p class="file-uploader__filename" id="file-name" style="display: none;"></p>
+              </div>
+              <span class="form-helper">The file contents will be hashed (SHA-256) and stored with the blockchain transaction.</span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Seal report on blockchain</button>
+            <button type="reset" class="btn btn--ghost" id="reset-btn">Clear form</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="block-result"></div>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/upload.js"></script>
+</body>
+</html>

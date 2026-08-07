@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Distributed Reports — MediChain</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+</head>
+<body>
+  <header id="app-header" class="app-header"></header>
+
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <div class="page-header">
+        <p class="page-eyebrow">Report distribution</p>
+        <h1 class="page-header__title">Medical Reports</h1>
+        <p class="page-header__subtitle">Each report has a unique QR for instant verification. Download ZIP packages or show QR to others.</p>
+      </div>
+
+      <div id="notification-area"></div>
+
+      <div id="reports-mobile-list" class="report-cards" aria-live="polite"></div>
+
+      <div class="data-table-wrapper reports-table-desktop">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Patient</th>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Department</th>
+              <th>Sealed</th>
+              <th>Block</th>
+              <th>Accesses</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reports-table-body">
+            <tr>
+              <td colspan="8">
+                <div class="empty-state">
+                  <div class="spinner" style="margin: 0 auto var(--space-04)"></div>
+                  <p>Loading distributed reports…</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <!-- Access logs modal (Admin) -->
+  <div class="modal-overlay" id="access-logs-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="access-logs-title" style="max-width: 640px;">
+      <div class="modal__header">
+        <h2 class="modal__title" id="access-logs-title">Distribution Access Logs</h2>
+      </div>
+      <div class="modal__body" id="access-logs-body">
+        <p style="font-size: var(--font-size-sm); color: var(--carbon-text-secondary);">Loading…</p>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--primary" id="access-logs-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Admin Dashboard — MediChain</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+</head>
+<body>
+  <header id="app-header" class="app-header"></header>
+
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main">
+      <div class="page-header admin-header">
+        <div class="admin-header__text">
+          <p class="page-eyebrow">Admin panel</p>
+          <h1 class="page-header__title">Chain Dashboard</h1>
+          <p class="page-header__subtitle">Monitor sealed reports and chain integrity.</p>
+        </div>
+        <div class="admin-toolbar" role="group" aria-label="Admin actions">
+          <button type="button" id="integrity-check-btn" class="btn btn--primary">Integrity Check</button>
+          <button type="button" id="repair-btn" class="btn btn--secondary" hidden>Repair</button>
+          <select id="view-toggle" class="form-select admin-toolbar__select" aria-label="View mode">
+            <option value="table">Table</option>
+            <option value="grid">Grid</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="notification-area"></div>
+
+      <section class="admin-section" aria-labelledby="admin-overview-title">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title" id="admin-overview-title">Overview</h2>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card__label">Total Blocks</div>
+            <div class="stat-card__value" id="stat-total">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Valid Reports</div>
+            <div class="stat-card__value" id="stat-valid">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Failures</div>
+            <div class="stat-card__value" id="stat-tampered">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card__label">Chain Status</div>
+            <div class="stat-card__value" id="stat-chain-status">Checking…</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-section" aria-labelledby="admin-ledger-title">
+        <div class="admin-section__head">
+          <h2 class="admin-section__title" id="admin-ledger-title">Medical chain ledger</h2>
+          <p class="admin-section__hint">Each sealed report is a hash-linked block.</p>
+        </div>
+
+        <div id="chain-mobile-list" class="chain-cards" aria-live="polite"></div>
+
+        <div id="table-view" class="chain-table-desktop">
+          <div class="data-table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th data-sort="index">Index <span class="sort-icon">↕</span></th>
+                  <th data-sort="timestamp">Sealed at <span class="sort-icon">↕</span></th>
+                  <th data-sort="title">Report / Patient <span class="sort-icon">↕</span></th>
+                  <th data-sort="type">Type</th>
+                  <th data-sort="hash">Block Hash <span class="sort-icon">↕</span></th>
+                  <th>Previous Hash</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="chain-table-body">
+                <tr>
+                  <td colspan="7">
+                    <div class="empty-state">
+                      <div class="spinner" style="margin: 0 auto var(--space-04)"></div>
+                      <p>Loading medical report chain…</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="grid-view" class="chain-grid-desktop" hidden>
+          <div class="block-grid" id="block-grid"></div>
+        </div>
+      </section>
+
+      <details class="admin-lab" id="security-lab">
+        <summary class="admin-lab__summary">Advanced · Security lab</summary>
+        <div class="admin-lab__body">
+          <p class="admin-lab__text">Training tool: alter a sealed block without updating its hash, then detect it with Integrity Check.</p>
+          <button type="button" id="tamper-btn" class="btn btn--danger btn--sm">Alter sealed block</button>
+        </div>
+      </details>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="tamper-modal">
+    <div class="modal modal--danger" role="dialog" aria-labelledby="tamper-modal-title" aria-modal="true">
+      <div class="modal__header">
+        <h2 class="modal__title" id="tamper-modal-title">Alter sealed block</h2>
+      </div>
+      <div class="modal__body">
+        <p class="modal__support" style="margin-bottom: var(--space-05);">
+          Changes block data without updating the hash — Integrity Check will flag it.
+        </p>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label class="form-label" for="tamper-block-select">Medical report block</label>
+          <select class="form-select" id="tamper-block-select"></select>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--secondary" id="tamper-cancel-btn">Cancel</button>
+        <button type="button" class="btn btn--danger" id="tamper-confirm-btn">Alter block</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

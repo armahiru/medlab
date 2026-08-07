@@ -1,0 +1,266 @@
+/**
+ * Soft ambient motion for MediChain green surfaces
+ */
+
+@keyframes med-float-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(28px, -36px, 0) scale(1.08); }
+}
+
+@keyframes med-float-b {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-40px, 24px, 0) scale(1.12); }
+}
+
+@keyframes med-float-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(18px, 40px, 0) scale(0.94); }
+}
+
+@keyframes med-pulse-ring {
+  0%, 100% {
+    opacity: 0.22;
+    transform: translate(-50%, -50%) scale(0.92);
+  }
+  50% {
+    opacity: 0.4;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+@keyframes med-shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes med-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* —— Auth / login green stage —— */
+.auth-layout {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(42, 157, 110, 0.35), transparent 55%),
+    radial-gradient(ellipse 70% 50% at 85% 75%, rgba(27, 107, 74, 0.45), transparent 50%),
+    var(--med-green);
+  background-size: 200% 200%, 200% 200%, auto;
+  animation: med-shimmer 14s ease-in-out infinite;
+}
+
+.auth-layout__ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-layout__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  will-change: transform;
+}
+
+.auth-layout__orb--1 {
+  width: min(42vw, 340px);
+  height: min(42vw, 340px);
+  left: -8%;
+  top: 12%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.28), rgba(42, 157, 110, 0.15) 55%, transparent 70%);
+  animation: med-float-a 11s ease-in-out infinite;
+}
+
+.auth-layout__orb--2 {
+  width: min(50vw, 420px);
+  height: min(50vw, 420px);
+  right: -12%;
+  bottom: 5%;
+  background: radial-gradient(circle at 40% 40%, rgba(232, 245, 236, 0.22), rgba(15, 61, 46, 0.1) 60%, transparent 72%);
+  animation: med-float-b 13s ease-in-out infinite;
+}
+
+.auth-layout__orb--3 {
+  width: min(28vw, 220px);
+  height: min(28vw, 220px);
+  left: 42%;
+  top: 62%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+  animation: med-float-c 9s ease-in-out infinite;
+}
+
+.auth-layout__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(70vw, 560px);
+  height: min(70vw, 560px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: med-pulse-ring 8s ease-in-out infinite;
+}
+
+.auth-layout__ring--delay {
+  width: min(90vw, 720px);
+  height: min(90vw, 720px);
+  animation-delay: -2.5s;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.auth-layout .auth-card {
+  position: relative;
+  z-index: 1;
+  animation: med-card-in 0.55s ease-out both;
+}
+
+/* —— App shell green (behind white bubble) —— */
+.app-shell {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 18%, rgba(42, 157, 110, 0.4), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 88% 80%, rgba(255, 255, 255, 0.08), transparent 55%),
+    var(--med-green);
+  background-size: 180% 180%, 180% 180%, auto;
+  animation: med-shimmer 18s ease-in-out infinite;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(1px);
+}
+
+.app-shell::before {
+  width: 280px;
+  height: 280px;
+  left: 4%;
+  top: 22%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 68%);
+  animation: med-float-a 16s ease-in-out infinite;
+}
+
+.app-shell::after {
+  width: 360px;
+  height: 360px;
+  right: -4%;
+  bottom: 8%;
+  background: radial-gradient(circle, rgba(42, 157, 110, 0.35), transparent 70%);
+  animation: med-float-b 19s ease-in-out infinite;
+}
+
+.app-main {
+  position: relative;
+  z-index: 1;
+}
+
+.app-header {
+  position: fixed;
+  z-index: 8000;
+}
+
+.app-sidebar {
+  position: fixed;
+}
+
+@media (min-width: 769px) {
+  .app-sidebar {
+    z-index: 100;
+  }
+}
+
+@media (max-width: 768px) {
+  .app-sidebar {
+    z-index: 7600;
+  }
+}
+
+/* Soft sheen on green sidebar */
+.app-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 40% at 30% 0%, rgba(255, 255, 255, 0.12), transparent 55%);
+  animation: med-shimmer 12s ease-in-out infinite;
+  background-size: 200% 200%;
+  opacity: 0.9;
+}
+
+/* —— Landing green hero —— */
+.landing__hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 30%, rgba(42, 157, 110, 0.45), transparent 55%),
+    radial-gradient(ellipse 50% 45% at 90% 70%, rgba(255, 255, 255, 0.1), transparent 50%),
+    var(--med-green);
+  background-size: 180% 180%, 180% 180%, auto;
+  animation: med-shimmer 16s ease-in-out infinite;
+}
+
+.landing__hero::before {
+  content: '';
+  position: absolute;
+  width: min(48vw, 380px);
+  height: min(48vw, 380px);
+  left: -6%;
+  top: 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 68%);
+  animation: med-float-a 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing__hero::after {
+  content: '';
+  position: absolute;
+  width: min(56vw, 460px);
+  height: min(56vw, 460px);
+  right: -10%;
+  bottom: -8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(27, 107, 74, 0.5), transparent 70%);
+  animation: med-float-b 14s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing__hero-inner {
+  z-index: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-layout,
+  .app-shell,
+  .app-shell::before,
+  .app-shell::after,
+  .app-sidebar::before,
+  .landing__hero,
+  .landing__hero::before,
+  .landing__hero::after,
+  .auth-layout__orb,
+  .auth-layout__ring,
+  .auth-layout .auth-card {
+    animation: none !important;
+  }
+}

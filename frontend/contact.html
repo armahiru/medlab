@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Contact Hospital — MediChain</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+</head>
+<body>
+  <header id="app-header" class="app-header"></header>
+
+  <div class="app-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main" style="max-width: 720px;">
+      <div class="page-header">
+        <p class="page-eyebrow">Hospital desk</p>
+        <h1 class="page-header__title">Contact &amp; notifications</h1>
+        <p class="page-header__subtitle">Send a message to hospital staff. Admins receive an in-app notification (and email if SMTP is configured).</p>
+      </div>
+
+      <div id="notification-area"></div>
+
+      <div class="card">
+        <h2 class="card__title">Send a message</h2>
+        <p class="card__subtitle">Use this for appointment questions, report follow-ups, or general enquiries.</p>
+
+        <form id="contact-form" novalidate>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="name">Full name</label>
+              <input class="form-input" type="text" id="name" required placeholder="Your full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="email">Email</label>
+              <input class="form-input" type="email" id="email" required placeholder="you@email.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="phone">Phone / contact number</label>
+              <input class="form-input" type="tel" id="phone" placeholder="e.g. +233 20 000 0000">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="patient-id">Patient ID (optional)</label>
+              <input class="form-input" type="text" id="patient-id" placeholder="e.g. PAT-2026-0142">
+            </div>
+            <div class="form-group form-group--full">
+              <label class="form-label" for="subject">Subject</label>
+              <input class="form-input" type="text" id="subject" required placeholder="e.g. Question about my lab report">
+            </div>
+            <div class="form-group form-group--full">
+              <label class="form-label" for="message">Message</label>
+              <textarea class="form-textarea" id="message" required placeholder="Write your message to the hospital desk"></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary">Send message</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="info-panel">
+        <h3 class="info-panel__title">How notifications work</h3>
+        <p class="info-panel__text">
+          Messages create an in-app alert for Hospital Admins. If SMTP email is configured on the server,
+          admins and the sender also receive email. Without SMTP, the system still works using the Notifications inbox.
+        </p>
+      </div>
+
+      <!-- Admin contact inbox -->
+      <div class="card" id="admin-inbox" style="display: none; margin-top: var(--space-06);">
+        <h2 class="card__title">Admin contact inbox</h2>
+        <div class="data-table-wrapper" style="border: none;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>From</th>
+                <th>Subject</th>
+                <th>Phone</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contact-inbox-body">
+              <tr><td colspan="6">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/contact.js"></script>
+</body>
+</html>

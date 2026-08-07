@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>MediChain — Medical Report Integrity</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+  <link rel="stylesheet" href="css/concept.css">
+</head>
+<body>
+  <header id="app-header" class="app-header"></header>
+
+  <div class="landing">
+    <section class="landing__hero">
+      <div class="landing__hero-inner">
+        <p class="landing__eyebrow">Trusted medical report integrity</p>
+        <h1 class="landing__title">MediChain</h1>
+        <p class="landing__lead">
+          Seal clinical reports on a hash-linked ledger — then verify authenticity in seconds, no login required.
+        </p>
+        <div class="landing__actions">
+          <a class="btn btn--primary" href="#verify">Verify a report</a>
+          <a class="btn btn--secondary" href="login.html">Staff sign in</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="landing__body">
+      <section id="verify" class="card landing-verify" aria-labelledby="landing-verify-title">
+        <h2 class="card__title" id="landing-verify-title">Verify a medical report</h2>
+        <p class="card__subtitle">Scan a QR, show a QR on this screen, or enter a Report ID. Public access — no account needed.</p>
+
+        <div id="notification-area"></div>
+
+        <div class="verify-tabs" role="tablist" aria-label="Verification method">
+          <button type="button" class="verify-tab is-active" role="tab" aria-selected="true" data-mode="scan" id="verify-tab-scan">Scan QR</button>
+          <button type="button" class="verify-tab" role="tab" aria-selected="false" data-mode="show" id="verify-tab-show">Show QR</button>
+          <button type="button" class="verify-tab" role="tab" aria-selected="false" data-mode="type" id="verify-tab-type">Enter ID</button>
+        </div>
+
+        <div id="verify-mode-scan" class="verify-mode">
+          <div id="qr-reader" class="qr-reader"></div>
+          <div class="verify-scan-actions">
+            <button type="button" class="btn btn--primary" id="start-scan-btn">Start camera</button>
+            <button type="button" class="btn btn--secondary" id="stop-scan-btn" hidden>Stop camera</button>
+          </div>
+        </div>
+
+        <div id="verify-mode-show" class="verify-mode" hidden>
+          <div class="verify-qr-panel">
+            <div id="verify-qr-display" class="verify-qr-panel__code qr-code"></div>
+            <p id="verify-qr-caption" class="verify-qr-panel__caption"></p>
+            <p id="verify-qr-link" class="verify-qr-panel__link"></p>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="show-qr-id">Report ID</label>
+            <div class="verify-qr-input-row">
+              <input class="form-input" type="text" id="show-qr-id" placeholder="Report ID">
+              <button type="button" class="btn btn--primary" id="show-qr-btn">Show QR</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="verify-mode-type" class="verify-mode" hidden>
+          <form id="verify-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="report-id">Medical Report ID</label>
+              <input class="form-input" type="text" id="report-id" name="reportId" placeholder="Report ID">
+            </div>
+            <div class="form-actions" style="border-top: none; padding-top: 0;">
+              <button type="submit" class="btn btn--secondary">Verify</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <div id="verify-result"></div>
+
+      <div class="card" style="margin-top: var(--space-05);">
+        <h2 class="card__title">How MediChain works</h2>
+        <div class="concept-steps">
+          <div class="concept-step">
+            <div class="concept-step__num">1</div>
+            <div class="concept-step__title">Doctor seals</div>
+            <p class="concept-step__text">Select the patient, attach the file, seal the report onto the chain.</p>
+          </div>
+          <div class="concept-step">
+            <div class="concept-step__num">2</div>
+            <div class="concept-step__title">Patient notified</div>
+            <p class="concept-step__text">In-app alert when a report is sealed.</p>
+          </div>
+          <div class="concept-step">
+            <div class="concept-step__num">3</div>
+            <div class="concept-step__title">Anyone verifies</div>
+            <p class="concept-step__text">Use the section above — scan QR or enter Report ID. No login.</p>
+          </div>
+          <div class="concept-step">
+            <div class="concept-step__num">4</div>
+            <div class="concept-step__title">Admin monitors</div>
+            <p class="concept-step__text">Integrity Check confirms seals across the ledger.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="landing__grid" style="margin-top: var(--space-05);">
+        <div class="card">
+          <h2 class="card__title">Roles</h2>
+          <ul class="checklist">
+            <li><strong>Doctor</strong> — seal reports, schedule appointments</li>
+            <li><strong>Patient</strong> — view own reports and alerts</li>
+            <li><strong>Admin</strong> — chain integrity monitoring</li>
+            <li><strong>Public</strong> — verify above without signing in</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h2 class="card__title">Staff sign-in</h2>
+          <p class="landing__cred">Admin: <code>admin@hospital.org</code> / <code>admin123</code></p>
+          <p class="landing__cred">Doctor: <code>doctor@hospital.org</code> / <code>doctor123</code></p>
+          <p class="landing__cred">Patient: <code>patient@hospital.org</code> / <code>patient123</code></p>
+          <p class="form-helper" style="margin-top: var(--space-04);">
+            Public visitors only need Verify. Staff use Sign in.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/verify.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      UI.renderHeader('verify');
+
+      if (new URLSearchParams(window.location.search).get('id')) {
+        document.getElementById('verify')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  </script>
+</body>
+</html>

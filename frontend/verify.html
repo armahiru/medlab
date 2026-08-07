@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Verify Medical Report — MediChain</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+</head>
+<body>
+  <header id="app-header" class="app-header"></header>
+
+  <div class="app-shell" id="verify-shell">
+    <aside id="app-sidebar" class="app-sidebar"></aside>
+
+    <main class="app-main" style="max-width: 720px;">
+      <div class="page-header">
+        <p class="page-eyebrow">Public verification</p>
+        <h1 class="page-header__title">Verify Medical Report</h1>
+      </div>
+
+      <div id="notification-area"></div>
+
+      <div class="card">
+        <div class="verify-tabs" role="tablist" aria-label="Verification method">
+          <button type="button" class="verify-tab is-active" role="tab" aria-selected="true" data-mode="scan" id="verify-tab-scan">Scan QR</button>
+          <button type="button" class="verify-tab" role="tab" aria-selected="false" data-mode="show" id="verify-tab-show">Show QR</button>
+          <button type="button" class="verify-tab" role="tab" aria-selected="false" data-mode="type" id="verify-tab-type">Enter ID</button>
+        </div>
+
+        <div id="verify-mode-scan" class="verify-mode">
+          <div id="qr-reader" class="qr-reader"></div>
+          <div class="verify-scan-actions">
+            <button type="button" class="btn btn--primary" id="start-scan-btn">Start camera</button>
+            <button type="button" class="btn btn--secondary" id="stop-scan-btn" hidden>Stop camera</button>
+          </div>
+        </div>
+
+        <div id="verify-mode-show" class="verify-mode" hidden>
+          <div class="verify-qr-panel">
+            <div id="verify-qr-display" class="verify-qr-panel__code qr-code"></div>
+            <p id="verify-qr-caption" class="verify-qr-panel__caption"></p>
+            <p id="verify-qr-link" class="verify-qr-panel__link"></p>
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" for="show-qr-id">Report ID</label>
+            <div class="verify-qr-input-row">
+              <input class="form-input" type="text" id="show-qr-id" placeholder="Report ID">
+              <button type="button" class="btn btn--primary" id="show-qr-btn">Show QR</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="verify-mode-type" class="verify-mode" hidden>
+          <form id="verify-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="report-id">Medical Report ID</label>
+              <input class="form-input" type="text" id="report-id" name="reportId" placeholder="Report ID">
+            </div>
+
+            <div class="form-actions" style="border-top: none; padding-top: 0;">
+              <button type="submit" class="btn btn--secondary">Verify</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="verify-result"></div>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/verify.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.isAuthenticated()) {
+        const sidebar = document.getElementById('app-sidebar');
+        const main = document.querySelector('.app-main');
+        if (sidebar) sidebar.style.display = 'none';
+        if (main) main.classList.add('app-main--solo');
+      }
+    });
+  </script>
+</body>
+</html>

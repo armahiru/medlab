@@ -1,0 +1,257 @@
+/**
+ * HCI patterns — accessibility, feedback, Fitts’s law touch targets,
+ * safe areas, and recognition-friendly empty / status chrome.
+ */
+
+/* Skip link — keyboard users jump past chrome */
+.skip-link {
+  position: absolute;
+  left: var(--space-05);
+  top: -100px;
+  z-index: 10000;
+  padding: var(--space-03) var(--space-05);
+  background: var(--carbon-interactive);
+  color: var(--carbon-text-on-color);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: calc(env(safe-area-inset-top, 0px) + var(--space-03));
+  outline: 2px solid var(--carbon-text-on-color);
+  outline-offset: 2px;
+}
+
+/* Busy button feedback (visibility of system status) */
+.btn.is-busy {
+  gap: var(--space-03);
+}
+
+.btn.is-busy .spinner {
+  border-color: rgba(255, 255, 255, 0.35);
+  border-top-color: currentColor;
+}
+
+.btn--secondary.is-busy .spinner,
+.btn--ghost.is-busy .spinner {
+  border-color: rgba(15, 98, 254, 0.25);
+  border-top-color: var(--carbon-interactive);
+}
+
+/* Inline helper text — recognition / guidance near controls */
+.form-helper {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--carbon-text-helper);
+  margin-top: var(--space-02);
+}
+
+.form-group:has(.form-input--error) .form-label {
+  color: var(--carbon-error);
+}
+
+.notification[role='alert'],
+.notification[role='status'] {
+  animation: hciNotifyIn 0.18s ease-out;
+}
+
+@keyframes hciNotifyIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empty-state .btn {
+  margin-top: var(--space-02);
+}
+
+/* Modern bottom tab bar — iOS / Material conventions */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 7400;
+    min-height: var(--bottom-nav-height);
+    padding: var(--space-02) var(--space-02);
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: 1px solid var(--carbon-border-subtle);
+    border-radius: 22px;
+    box-shadow: 0 10px 28px rgba(15, 61, 46, 0.16);
+  }
+
+  body.has-bottom-nav .app-main {
+    padding-bottom: calc(var(--bottom-safe) + var(--space-06));
+  }
+
+  body.mobile-nav-open .bottom-nav {
+    pointer-events: none !important;
+    opacity: 0.35;
+  }
+
+  body.mobile-nav-open .mobile-nav-backdrop {
+    z-index: 7400;
+  }
+
+  body.mobile-nav-open .app-sidebar {
+    z-index: 7600;
+    pointer-events: auto !important;
+  }
+
+  .bottom-nav__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    min-height: var(--touch-target);
+    padding: var(--space-02) 2px;
+    border: none;
+    background: transparent;
+    color: var(--carbon-text-secondary);
+    font-family: var(--font-family);
+    font-size: 10px;
+    letter-spacing: 0.02em;
+    line-height: 1.15;
+    text-decoration: none;
+    cursor: pointer;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .bottom-nav__item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 28px;
+    height: 2px;
+    transform: translateX(-50%) scaleX(0);
+    background: var(--carbon-interactive);
+    transition: transform 0.15s ease;
+  }
+
+  .bottom-nav__icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+  }
+
+  .bottom-nav__icon .nav-alert-badge {
+    position: absolute;
+    top: -2px;
+    right: -6px;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 0.25rem;
+    font-size: 0.58rem;
+  }
+
+  .bottom-nav__icon .nav-alert-badge--dot:empty {
+    min-width: 0.5rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    padding: 0;
+  }
+
+  .bottom-nav__item svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .bottom-nav__item span:not(.bottom-nav__icon) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bottom-nav__item--active {
+    color: var(--med-green);
+    font-weight: 700;
+  }
+
+  .bottom-nav__item--active .bottom-nav__icon {
+    background: var(--med-mint);
+    border-radius: 12px;
+  }
+
+  .bottom-nav__item--active::before {
+    transform: translateX(-50%) scaleX(1);
+    background: var(--med-green);
+  }
+
+  .bottom-nav__item:active {
+    background: var(--med-mint);
+    border-radius: 12px;
+  }
+
+  .btn:not(.btn--sm) {
+    min-height: var(--touch-target);
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    min-height: var(--touch-target);
+  }
+
+  .inbox-toolbar__actions .btn {
+    min-height: var(--touch-target);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.hci-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-05);
+  margin-top: var(--space-05);
+}
+
+.hci-principle {
+  padding: var(--space-05);
+  background: var(--carbon-bg);
+  border-left: 3px solid var(--carbon-interactive);
+}
+
+.hci-principle__title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--carbon-text-primary);
+  margin-bottom: var(--space-02);
+}
+
+.hci-principle__text {
+  font-size: var(--font-size-xs);
+  color: var(--carbon-text-secondary);
+  margin: 0;
+}

@@ -1,0 +1,301 @@
+/* Blockchain concept + wellness medical landing */
+
+.concept-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-04);
+  margin-top: var(--space-05);
+}
+
+.concept-step {
+  border: 1px solid var(--carbon-border-subtle);
+  background: #ffffff;
+  border-radius: var(--med-radius);
+  padding: var(--space-05);
+  box-shadow: 0 4px 14px rgba(15, 61, 46, 0.06);
+}
+
+.concept-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--med-green);
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  margin-bottom: var(--space-03);
+}
+
+.concept-step__title {
+  font-family: var(--font-display);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--med-green);
+  margin-bottom: var(--space-02);
+}
+
+.concept-step__text {
+  font-size: var(--font-size-xs);
+  color: var(--carbon-text-secondary);
+  line-height: 1.45;
+}
+
+.chain-diagram {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-03);
+  margin-top: var(--space-05);
+  font-size: var(--font-size-xs);
+}
+
+.chain-diagram__block {
+  border: 1px solid var(--carbon-border-subtle);
+  background: var(--med-mint);
+  border-radius: var(--med-radius-sm);
+  padding: var(--space-03) var(--space-04);
+  min-width: 110px;
+}
+
+.chain-diagram__block strong {
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-bottom: 2px;
+  color: var(--med-green);
+}
+
+.chain-diagram__arrow {
+  color: var(--med-green);
+  font-weight: 600;
+}
+
+.checklist {
+  list-style: none;
+  margin-top: var(--space-04);
+  counter-reset: step;
+}
+
+.checklist li {
+  position: relative;
+  padding: var(--space-03) 0 var(--space-03) var(--space-06);
+  font-size: var(--font-size-sm);
+  color: var(--carbon-text-secondary);
+  border-bottom: 1px solid var(--carbon-border-subtle);
+}
+
+.checklist li::before {
+  content: counter(step);
+  counter-increment: step;
+  position: absolute;
+  left: 0;
+  top: var(--space-03);
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--med-mint);
+  color: var(--med-green);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Landing — green hero + white curved body */
+.landing {
+  min-height: 100vh;
+  background: var(--med-green);
+}
+
+.landing__hero {
+  position: relative;
+  min-height: calc(72vh - var(--header-offset));
+  margin-top: var(--header-offset);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  color: #ffffff;
+  background: var(--med-green);
+  animation: landing-hero-in 0.7s ease-out both;
+}
+
+.landing__hero::after {
+  display: none;
+}
+
+.landing__hero-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--space-08) var(--space-06) var(--space-07);
+}
+
+.landing__eyebrow {
+  font-family: var(--font-display);
+  font-size: var(--font-size-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  margin-bottom: var(--space-04);
+  font-weight: 700;
+  animation: landing-fade-up 0.6s ease-out 0.1s both;
+}
+
+.landing__title {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 8vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--space-04);
+  max-width: 12ch;
+  line-height: 0.95;
+  color: #ffffff;
+  animation: landing-fade-up 0.65s ease-out 0.18s both;
+}
+
+.landing__lead {
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  color: rgba(255, 255, 255, 0.88);
+  max-width: 38ch;
+  margin-bottom: var(--space-06);
+  line-height: 1.5;
+  animation: landing-fade-up 0.65s ease-out 0.28s both;
+}
+
+.landing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-03);
+  animation: landing-fade-up 0.65s ease-out 0.38s both;
+}
+
+.landing__actions .btn--primary {
+  background: #ffffff;
+  color: var(--med-green);
+  border: none;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+.landing__actions .btn--primary:hover:not(:disabled) {
+  background: var(--med-mint);
+  color: var(--med-green);
+  transform: translateY(-1px);
+}
+
+.landing__actions .btn--secondary {
+  border-color: rgba(255, 255, 255, 0.7);
+  color: #ffffff;
+  background: transparent;
+}
+
+.landing__actions .btn--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+.landing-verify {
+  scroll-margin-top: calc(var(--header-offset) + var(--space-05));
+  border: 1px solid var(--carbon-border-subtle);
+  box-shadow: 0 12px 32px rgba(15, 61, 46, 0.08);
+}
+
+.landing__body {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-08) var(--space-06) var(--space-09);
+  background: #ffffff;
+  border-radius: 40px 40px 0 0;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
+  min-height: 40vh;
+}
+
+.landing__body::before {
+  content: '';
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(120px, 30vw);
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.landing__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-05);
+  margin-top: var(--space-06);
+}
+
+.landing__cred {
+  margin-top: var(--space-05);
+  font-size: var(--font-size-sm);
+  color: var(--carbon-text-secondary);
+}
+
+.landing__cred code {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: var(--font-size-xs);
+  background: var(--med-mint);
+  color: var(--med-green);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+@keyframes landing-hero-in {
+  from { opacity: 0.9; }
+  to { opacity: 1; }
+}
+
+@keyframes landing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing__hero,
+  .landing__eyebrow,
+  .landing__title,
+  .landing__lead,
+  .landing__actions {
+    animation: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .landing__hero {
+    min-height: calc(60dvh - var(--header-offset));
+  }
+
+  .landing__hero-inner {
+    padding: var(--space-07) var(--space-05);
+  }
+
+  .landing__title {
+    max-width: none;
+  }
+
+  .landing__body {
+    border-radius: 32px 32px 0 0;
+    padding: var(--space-07) var(--space-05) var(--space-09);
+  }
+}

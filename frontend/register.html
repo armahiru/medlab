@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Create account — MediChain</title>
+  <link rel="stylesheet" href="css/carbon.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/hci.css">
+  <link rel="stylesheet" href="css/app-theme.css">
+  <link rel="stylesheet" href="css/green-motion.css">
+</head>
+<body>
+  <div class="auth-layout">
+    <div class="auth-layout__ambient" aria-hidden="true">
+      <span class="auth-layout__orb auth-layout__orb--1"></span>
+      <span class="auth-layout__orb auth-layout__orb--2"></span>
+      <span class="auth-layout__orb auth-layout__orb--3"></span>
+      <span class="auth-layout__ring"></span>
+      <span class="auth-layout__ring auth-layout__ring--delay"></span>
+    </div>
+    <div class="auth-card">
+      <p class="auth-card__eyebrow">Medical Report Integrity</p>
+      <div class="auth-card__logo">
+        <svg class="auth-card__logo-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M16 2L4 8v8c0 7.2 5.1 13.9 12 15 6.9-1.1 12-7.8 12-15V8L16 2zm0 2.2l10 5v6.8c0 5.8-4.1 11.2-10 12.3-5.9-1.1-10-6.5-10-12.3V9.2l10-5z"/>
+          <path d="M15 10h2v4h4v2h-4v4h-2v-4h-4v-2h4v-4z"/>
+        </svg>
+        <div>
+          <h1 class="auth-card__title">MediChain</h1>
+        </div>
+      </div>
+      <p class="auth-card__subtitle">Create an account to upload, manage, or verify medical reports</p>
+
+      <div id="notification-area"></div>
+
+      <form id="register-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="name">Full name</label>
+          <input class="form-input" type="text" id="name" name="name" autocomplete="name" required placeholder="Dr. Jane Doe">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Work email</label>
+          <input class="form-input" type="email" id="email" name="email" autocomplete="email" required placeholder="name@hospital.org">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input class="form-input" type="password" id="password" name="password" autocomplete="new-password" required placeholder="Minimum 6 characters">
+          <span class="form-helper">Use at least 6 characters</span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm-password">Confirm password</label>
+          <input class="form-input" type="password" id="confirm-password" name="confirm-password" autocomplete="new-password" required placeholder="Re-enter password">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="role">Account role</label>
+          <select class="form-select" id="role" name="role" required>
+            <option value="Recipient">Recipient — Patient (own records only)</option>
+            <option value="Uploader">Uploader — Doctor / lab / department staff</option>
+          </select>
+          <span class="form-helper">Hospital Admin accounts are provisioned by the system (not self-registered)</span>
+        </div>
+
+        <div class="form-group" id="patient-id-group">
+          <label class="form-label" for="patient-id">Patient ID</label>
+          <input class="form-input" type="text" id="patient-id" name="patientId" placeholder="e.g. PAT-2026-0142">
+          <span class="form-helper">Required for patients. Doctors must use this same ID when uploading your reports or booking appointments.</span>
+        </div>
+
+        <div class="form-group" id="phone-group">
+          <label class="form-label" for="phone">Mobile number (for SMS alerts)</label>
+          <input class="form-input" type="tel" id="phone" name="phone" placeholder="e.g. 0201234567 or +233201234567">
+          <span class="form-helper">Used to text you when a report is sealed or an appointment is scheduled (when SMS is enabled).</span>
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--full">Create account</button>
+      </form>
+
+      <div class="auth-card__footer">
+        Already registered? <a href="login.html">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/hci.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

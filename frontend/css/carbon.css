@@ -1,0 +1,150 @@
+/* MediChain — bright forest-green medical theme */
+
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Forest green medical palette (Dribbble-inspired) */
+  --carbon-text-primary: #14261c;
+  --carbon-text-secondary: #4d6356;
+  --carbon-text-helper: #6b8072;
+  --carbon-text-on-color: #ffffff;
+  --carbon-text-error: #c62828;
+
+  --carbon-bg: #f4f7f5;
+  --carbon-bg-white: #ffffff;
+  --carbon-bg-hover: #e8f0eb;
+  --carbon-bg-active: #d5e5db;
+  --carbon-bg-inverse: #0f3d2e;
+
+  --carbon-border-subtle: #dce8e1;
+  --carbon-border-strong: #8aa396;
+  --carbon-border-interactive: #0f3d2e;
+
+  --carbon-interactive: #0f3d2e;
+  --carbon-interactive-hover: #0a2e22;
+  --carbon-interactive-active: #072218;
+
+  --med-green: #0f3d2e;
+  --med-green-bright: #1b6b4a;
+  --med-green-soft: #e7f3ec;
+  --med-mint: #f0f7f3;
+  --med-slate: #1b6b4a;
+  --med-slate-deep: #0f3d2e;
+  --med-mist: #e7f3ec;
+  --med-teal: #2a9d6e;
+  --med-radius: 22px;
+  --med-radius-sm: 14px;
+  --med-radius-pill: 999px;
+
+  --carbon-success: #1b6b4a;
+  --carbon-success-bg: #e6f6ec;
+  --carbon-error: #c62828;
+  --carbon-error-bg: #fdecea;
+  --carbon-warning: #c79100;
+  --carbon-warning-bg: #fff6da;
+  --carbon-info-bg: #e7f3ec;
+
+  /* Spacing */
+  --space-01: 2px;
+  --space-02: 4px;
+  --space-03: 8px;
+  --space-04: 12px;
+  --space-05: 16px;
+  --space-06: 24px;
+  --space-07: 32px;
+  --space-08: 48px;
+  --space-09: 64px;
+
+  /* Typography */
+  --font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+  --font-display: 'Manrope', 'Source Sans 3', sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.75rem;
+  --font-size-3xl: 2.25rem;
+
+  --line-height: 1.55;
+  --line-height-heading: 1.15;
+
+  /* Layout */
+  --header-height: 64px;
+  --header-offset: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+  --sidebar-width: 268px;
+  --content-max-width: 1312px;
+  --auth-card-width: 400px;
+  --touch-target: 44px;
+  --bottom-nav-height: 64px;
+  --bottom-safe: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+
+  --focus: 2px solid var(--carbon-interactive);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height);
+  color: var(--carbon-text-primary);
+  background-color: var(--carbon-bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+a {
+  color: var(--carbon-interactive);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+:focus-visible {
+  outline: var(--focus);
+  outline-offset: 2px;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  line-height: var(--line-height-heading);
+  font-weight: 700;
+  color: var(--carbon-text-primary);
+}
+
+h1 { font-size: var(--font-size-3xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+
+p {
+  color: var(--carbon-text-secondary);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
