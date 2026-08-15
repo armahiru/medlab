@@ -18,22 +18,63 @@
   <div class="landing">
     <section class="landing__hero">
       <div class="landing__hero-inner">
-        <p class="landing__eyebrow">Trusted medical report integrity</p>
-        <h1 class="landing__title">MediChain</h1>
-        <p class="landing__lead">
-          Seal clinical reports on a hash-linked ledger — then verify authenticity in seconds, no login required.
-        </p>
-        <div class="landing__actions">
-          <a class="btn btn--primary" href="#verify">Verify a report</a>
-          <a class="btn btn--secondary" href="login.html">Staff sign in</a>
+        <div class="landing-brandmark" aria-hidden="true">
+          <svg class="landing-brandmark__glyph" viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg">
+            <path fill="currentColor" d="M48 6L14 22v22c0 22 15.4 41.8 34 46 18.6-4.2 34-24 34-46V22L48 6zm0 8.4L76 28v16c0 17.2-12.2 33.4-28 37.2C32.2 77.4 20 61.2 20 44V28l28-13.6z"/>
+            <path fill="currentColor" d="M44 34h8v10h10v8H52v10h-8V52H34v-8h10V34z"/>
+            <circle cx="48" cy="48" r="38" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.35"/>
+          </svg>
+          <span class="landing-brandmark__ring"></span>
+          <span class="landing-brandmark__ring landing-brandmark__ring--delay"></span>
+        </div>
+        <div class="landing__hero-copy">
+          <h1 class="landing__title">MediChain</h1>
+          <p class="landing__lead">Seal. Link. Verify.</p>
+          <div class="landing__actions">
+            <a class="btn btn--primary" href="#verify">Verify report</a>
+            <a class="btn btn--secondary" href="login.html">Sign in</a>
+          </div>
         </div>
       </div>
     </section>
 
     <div class="landing__body">
+      <section class="landing-feats" aria-label="Core features">
+        <div class="landing-feat">
+          <span class="landing-feat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M12 3l8 4v5c0 5-3.4 9.4-8 10-4.6-.6-8-5-8-10V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <span class="landing-feat__label">Seal</span>
+        </div>
+        <div class="landing-feat">
+          <span class="landing-feat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="7" height="7" rx="1.5"/><rect x="14" y="4" width="7" height="7" rx="1.5"/><rect x="8.5" y="13" width="7" height="7" rx="1.5"/><path d="M10 7.5h4M12 11v2"/></svg>
+          </span>
+          <span class="landing-feat__label">Hash chain</span>
+        </div>
+        <div class="landing-feat">
+          <span class="landing-feat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M4 7h16M4 12h10M4 17h7"/><circle cx="18" cy="16" r="3"/><path d="M18 14.5V16l1 1"/></svg>
+          </span>
+          <span class="landing-feat__label">QR verify</span>
+        </div>
+        <div class="landing-feat">
+          <span class="landing-feat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+          </span>
+          <span class="landing-feat__label">Alerts</span>
+        </div>
+        <div class="landing-feat">
+          <span class="landing-feat__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M3 12h4l2-7 4 14 2-7h6"/></svg>
+          </span>
+          <span class="landing-feat__label">Integrity</span>
+        </div>
+      </section>
+
       <section id="verify" class="card landing-verify" aria-labelledby="landing-verify-title">
         <h2 class="card__title" id="landing-verify-title">Verify a medical report</h2>
-        <p class="card__subtitle">Scan a QR, show a QR on this screen, or enter a Report ID. Public access — no account needed.</p>
+        <p class="card__subtitle">Scan a QR, show a QR on this screen, or enter a Report ID.</p>
 
         <div id="notification-area"></div>
 
@@ -80,54 +121,6 @@
       </section>
 
       <div id="verify-result"></div>
-
-      <div class="card" style="margin-top: var(--space-05);">
-        <h2 class="card__title">How MediChain works</h2>
-        <div class="concept-steps">
-          <div class="concept-step">
-            <div class="concept-step__num">1</div>
-            <div class="concept-step__title">Doctor seals</div>
-            <p class="concept-step__text">Select the patient, attach the file, seal the report onto the chain.</p>
-          </div>
-          <div class="concept-step">
-            <div class="concept-step__num">2</div>
-            <div class="concept-step__title">Patient notified</div>
-            <p class="concept-step__text">In-app alert when a report is sealed.</p>
-          </div>
-          <div class="concept-step">
-            <div class="concept-step__num">3</div>
-            <div class="concept-step__title">Anyone verifies</div>
-            <p class="concept-step__text">Use the section above — scan QR or enter Report ID. No login.</p>
-          </div>
-          <div class="concept-step">
-            <div class="concept-step__num">4</div>
-            <div class="concept-step__title">Admin monitors</div>
-            <p class="concept-step__text">Integrity Check confirms seals across the ledger.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="landing__grid" style="margin-top: var(--space-05);">
-        <div class="card">
-          <h2 class="card__title">Roles</h2>
-          <ul class="checklist">
-            <li><strong>Doctor</strong> — seal reports, schedule appointments</li>
-            <li><strong>Patient</strong> — view own reports and alerts</li>
-            <li><strong>Admin</strong> — chain integrity monitoring</li>
-            <li><strong>Public</strong> — verify above without signing in</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h2 class="card__title">Staff sign-in</h2>
-          <p class="landing__cred">Admin: <code>admin@hospital.org</code> / <code>admin123</code></p>
-          <p class="landing__cred">Doctor: <code>doctor@hospital.org</code> / <code>doctor123</code></p>
-          <p class="landing__cred">Patient: <code>patient@hospital.org</code> / <code>patient123</code></p>
-          <p class="form-helper" style="margin-top: var(--space-04);">
-            Public visitors only need Verify. Staff use Sign in.
-          </p>
-        </div>
-      </div>
     </div>
   </div>
 

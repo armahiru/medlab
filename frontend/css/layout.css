@@ -943,6 +943,15 @@
   fill: var(--carbon-interactive);
 }
 
+.auth-card__logo-img {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(15, 61, 46, 0.18);
+}
+
 .auth-card__title {
   font-family: var(--font-display);
   font-size: var(--font-size-2xl);
