@@ -15,10 +15,19 @@ function isEmailConfigured() {
 function getTransporter() {
   if (!isEmailConfigured()) return null;
 
+  const port = Number(process.env.SMTP_PORT || 465);
+  const secure =
+    process.env.SMTP_SECURE !== undefined
+      ? String(process.env.SMTP_SECURE) === 'true'
+      : port === 465;
+
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: String(process.env.SMTP_SECURE || 'false') === 'true',
+    port,
+    secure,
+    requireTLS: !secure && port === 587,
+    // Prefer IPv4 — many campus/home networks cannot reach Gmail over IPv6
+    family: 4,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
