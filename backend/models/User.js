@@ -40,7 +40,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: null,
-      sparse: true,
     },
     /** Mobile number for SMS alerts (optional but recommended for patients) */
     phone: {

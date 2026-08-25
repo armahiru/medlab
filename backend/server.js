@@ -107,9 +107,29 @@ async function start() {
       );
     }
 
-    console.log('[MediChain] Connecting to MongoDB...');
-    await mongoose.connect(MONGO_URI);
-    console.log('[MediChain] MongoDB connected');
+    const usingAtlas = /mongodb\.net|mongodb\+srv/i.test(MONGO_URI);
+    console.log(
+      `[MediChain] Connecting to MongoDB (${usingAtlas ? 'Atlas' : 'local'})...`
+    );
+
+    mongoose.connection.on('connected', () => {
+      console.log('[MediChain] MongoDB status: connected');
+    });
+    mongoose.connection.on('disconnected', () => {
+      console.warn('[MediChain] MongoDB status: disconnected (will retry automatically)');
+    });
+    mongoose.connection.on('reconnected', () => {
+      console.log('[MediChain] MongoDB status: reconnected');
+    });
+    mongoose.connection.on('error', (err) => {
+      console.error('[MediChain] MongoDB error:', err.message);
+    });
+
+    await mongoose.connect(MONGO_URI, {
+      serverSelectionTimeoutMS: 20000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
+    });
 
     await ensureGenesisBlock();
     console.log('[MediChain] Genesis block ready');
@@ -126,7 +146,9 @@ async function start() {
     });
   } catch (err) {
     console.error('[MediChain] Failed to start:', err.message);
-    console.error('Make sure MongoDB is running and MONGO_URI in backend/.env is correct.');
+    console.error(
+      'Check MONGO_URI in backend/.env, Atlas Network Access (IP allow list), and your internet/DNS.'
+    );
     process.exit(1);
   }
 }
