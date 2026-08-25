@@ -15,7 +15,7 @@ const qrRoutes = require('./routes/qrRoutes');
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { ensureGenesisBlock } = require('./utils/blockchain');
 const { seedDemoUsers } = require('./seed');
-const { isEmailConfigured } = require('./utils/email');
+const { isEmailConfigured, isResendConfigured } = require('./utils/email');
 const { isSmsConfigured } = require('./utils/sms');
 
 const app = express();
@@ -141,7 +141,7 @@ async function start() {
       console.log(`[MediChain] App + API: http://localhost:${PORT}`);
       console.log(`[MediChain] Phone (same Wi‑Fi): http://<your-pc-ip>:${PORT}`);
       console.log(`[MediChain] Health: http://localhost:${PORT}/api/health`);
-      console.log(`[MediChain] Email SMTP: ${isEmailConfigured() ? 'configured' : 'off (in-app still works)'}`);
+      console.log(`[MediChain] Email: ${isEmailConfigured() ? (require('./utils/email').isResendConfigured() ? 'Resend' : 'SMTP') : 'off (in-app still works)'}`);
       console.log(`[MediChain] SMS Twilio: ${isSmsConfigured() ? 'configured' : 'off (in-app still works)'}`);
       console.log('[MediChain] Demo accounts (seeded): admin@ / doctor@ / patient@ hospital.org');
     });

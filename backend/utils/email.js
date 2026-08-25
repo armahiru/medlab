@@ -1,20 +1,24 @@
 /**
- * Optional email delivery via SMTP.
- * If SMTP is not configured, emails are skipped (in-app notifications still work).
- *
- * Gmail notes:
- * - Many local/campus networks break IPv6 → force IPv4 locally
- * - Render sets RENDER=true; there we leave DNS family alone (IPv4-only can hang)
- * - Prefer 465/SSL; fall back to 587/STARTTLS if connect times out
+ * Email delivery:
+ * 1) Prefer Resend HTTPS API (works on Render — Gmail SMTP often times out there)
+ * 2) Fall back to SMTP (Gmail App Password) for local/dev
  */
 const nodemailer = require('nodemailer');
 
-function isEmailConfigured() {
+function isResendConfigured() {
+  return !!process.env.RESEND_API_KEY;
+}
+
+function isSmtpConfigured() {
   return !!(
     process.env.SMTP_HOST &&
     process.env.SMTP_USER &&
     process.env.SMTP_PASS
   );
+}
+
+function isEmailConfigured() {
+  return isResendConfigured() || isSmtpConfigured();
 }
 
 function isGmailHost(host) {
@@ -40,7 +44,6 @@ function buildTransportOptions({ port, secure }) {
     socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT || 45000),
   };
 
-  // Local/campus fix only — forcing IPv4 on Render can cause Connection timeout
   if (!onRender) {
     opts.family = 4;
   }
@@ -51,22 +54,15 @@ function buildTransportOptions({ port, secure }) {
 function getTransportAttempts() {
   const host = String(process.env.SMTP_HOST || '').trim();
   const configuredPort = Number(process.env.SMTP_PORT || 465);
-  const configuredSecure =
-    process.env.SMTP_SECURE !== undefined
-      ? String(process.env.SMTP_SECURE) === 'true'
-      : configuredPort === 465;
 
   if (!isGmailHost(host)) {
-    return [{ port: configuredPort, secure: configuredSecure }];
+    const secure =
+      process.env.SMTP_SECURE !== undefined
+        ? String(process.env.SMTP_SECURE) === 'true'
+        : configuredPort === 465;
+    return [{ port: configuredPort, secure }];
   }
 
-  // Gmail: try SSL 465 first, then STARTTLS 587
-  const attempts = [
-    { port: 465, secure: true },
-    { port: 587, secure: false },
-  ];
-
-  // Put env-preferred port first if it differs
   if (configuredPort === 587) {
     return [
       { port: 587, secure: false },
@@ -74,22 +70,45 @@ function getTransportAttempts() {
     ];
   }
 
-  return attempts;
+  return [
+    { port: 465, secure: true },
+    { port: 587, secure: false },
+  ];
 }
 
-/**
- * @returns {Promise<{ sent: boolean, reason?: string }>}
- */
-async function sendEmail({ to, subject, text, html }) {
-  if (!to) {
-    return { sent: false, reason: 'No recipient email' };
+async function sendViaResend({ to, subject, text, html }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from =
+    process.env.RESEND_FROM ||
+    process.env.SMTP_FROM ||
+    'MediChain <beth.t@example.com>';
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: [to],
+      subject,
+      text,
+      html: html || `<p>${text}</p>`,
+    }),
+  });
+
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const reason = body.message || body.error || `Resend HTTP ${response.status}`;
+    throw new Error(reason);
   }
 
-  if (!isEmailConfigured()) {
-    console.log(`[MediChain Email] Skipped (SMTP not configured): → ${to} | ${subject}`);
-    return { sent: false, reason: 'SMTP not configured' };
-  }
+  console.log(`[MediChain Email] Sent via Resend → ${to} | ${subject}`);
+  return { sent: true };
+}
 
+async function sendViaSmtp({ to, subject, text, html }) {
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const attempts = getTransportAttempts();
   let lastError = '';
@@ -98,7 +117,7 @@ async function sendEmail({ to, subject, text, html }) {
     try {
       const opts = buildTransportOptions(attempt);
       console.log(
-        `[MediChain Email] Trying ${opts.host}:${opts.port} (secure=${opts.secure}, family=${opts.family || 'auto'})`
+        `[MediChain Email] Trying SMTP ${opts.host}:${opts.port} (secure=${opts.secure})`
       );
 
       const transporter = nodemailer.createTransport(opts);
@@ -110,18 +129,53 @@ async function sendEmail({ to, subject, text, html }) {
         html: html || `<p>${text}</p>`,
       });
 
-      console.log(`[MediChain Email] Sent → ${to} | ${subject} via :${opts.port}`);
+      console.log(`[MediChain Email] Sent via SMTP :${opts.port} → ${to} | ${subject}`);
       return { sent: true };
     } catch (err) {
       lastError = err.message || String(err);
-      console.error(`[MediChain Email] Attempt :${attempt.port} failed:`, lastError);
+      console.error(`[MediChain Email] SMTP :${attempt.port} failed:`, lastError);
     }
   }
 
   return { sent: false, reason: lastError || 'All SMTP attempts failed' };
 }
 
+/**
+ * @returns {Promise<{ sent: boolean, reason?: string }>}
+ */
+async function sendEmail({ to, subject, text, html }) {
+  if (!to) {
+    return { sent: false, reason: 'No recipient email' };
+  }
+
+  if (!isEmailConfigured()) {
+    console.log(`[MediChain Email] Skipped (not configured): → ${to} | ${subject}`);
+    return { sent: false, reason: 'Email not configured' };
+  }
+
+  // Prefer Resend on hosted deploys (HTTPS — not blocked like Gmail SMTP)
+  if (isResendConfigured()) {
+    try {
+      return await sendViaResend({ to, subject, text, html });
+    } catch (err) {
+      console.error('[MediChain Email] Resend failed:', err.message);
+      if (!isSmtpConfigured()) {
+        return { sent: false, reason: err.message };
+      }
+      console.log('[MediChain Email] Falling back to SMTP…');
+    }
+  }
+
+  if (isSmtpConfigured()) {
+    return sendViaSmtp({ to, subject, text, html });
+  }
+
+  return { sent: false, reason: 'Email not configured' };
+}
+
 module.exports = {
   isEmailConfigured,
+  isResendConfigured,
+  isSmtpConfigured,
   sendEmail,
 };
