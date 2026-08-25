@@ -141,7 +141,7 @@ async function start() {
       console.log(`[MediChain] App + API: http://localhost:${PORT}`);
       console.log(`[MediChain] Phone (same Wi‑Fi): http://<your-pc-ip>:${PORT}`);
       console.log(`[MediChain] Health: http://localhost:${PORT}/api/health`);
-      console.log(`[MediChain] Email: ${isEmailConfigured() ? (require('./utils/email').isResendConfigured() ? 'Resend' : 'SMTP') : 'off (in-app still works)'}`);
+      console.log(`[MediChain] Email: ${isEmailConfigured() ? (isResendConfigured() ? 'Resend' : 'SMTP') : 'off (in-app still works)'}`);
       console.log(`[MediChain] SMS Twilio: ${isSmsConfigured() ? 'configured' : 'off (in-app still works)'}`);
       console.log('[MediChain] Demo accounts (seeded): admin@ / doctor@ / patient@ hospital.org');
     });
