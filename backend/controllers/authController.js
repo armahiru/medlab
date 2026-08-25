@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { signToken, formatUser } = require('../middleware/auth');
 const { avatarsDir } = require('../middleware/upload');
 const { sendEmail } = require('../utils/email');
+const { notifyUser } = require('../utils/notify');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -103,6 +104,31 @@ async function login(req, res, next) {
     }
 
     const token = signToken(user);
+
+    // Patients get an immediate Gmail + in-app notice on sign-in
+    if (user.role === 'Recipient') {
+      const signedInAt = new Date().toLocaleString();
+      notifyUser({
+        userId: user._id,
+        type: 'system',
+        title: 'Signed in to MediChain',
+        message: `You signed in successfully at ${signedInAt}. If this wasn’t you, reset your password.`,
+        link: 'notifications.html',
+        emailSubject: 'MediChain: New sign-in on your patient account',
+        emailBody: [
+          `Hello ${user.name},`,
+          '',
+          'Your MediChain patient account just signed in.',
+          `Patient ID: ${user.patientId || 'N/A'}`,
+          `Time: ${signedInAt}`,
+          '',
+          'If this was you, no action is needed.',
+          'If you did not sign in, use Forgot password on the sign-in page immediately.',
+        ].join('\n'),
+      }).catch((err) => {
+        console.error('[MediChain] Login email failed:', err.message);
+      });
+    }
 
     return res.status(200).json({
       message: 'Signed in successfully.',

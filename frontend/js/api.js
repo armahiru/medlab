@@ -21,7 +21,29 @@ const Api = {
       headers['Content-Type'] = 'application/json';
     }
 
-    const response = await fetch(url, { ...options, headers });
+    const timeoutMs = options.timeoutMs || 30000;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    let response;
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if (err && err.name === 'AbortError') {
+        throw new Error('Request timed out. Check that the server is running and try again.');
+      }
+      throw new Error(
+        err.message === 'Failed to fetch'
+          ? 'Cannot reach the server. Start the backend or check your connection.'
+          : err.message || 'Network error'
+      );
+    } finally {
+      clearTimeout(timer);
+    }
 
     let data;
     const contentType = response.headers.get('content-type');

@@ -33,11 +33,11 @@ async function notifyUser({
     emailSent = result.sent;
   }
 
-  // Text/SMS to patient phone when provided
-  if (smsBody || message) {
+  // Text/SMS only when an explicit SMS body is provided
+  if (smsBody && user.phone) {
     const result = await sendSms({
       to: user.phone,
-      body: smsBody || `${title}: ${message}`,
+      body: smsBody,
     });
     smsSent = result.sent;
   }
