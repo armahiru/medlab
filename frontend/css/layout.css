@@ -952,6 +952,39 @@
   box-shadow: 0 8px 20px rgba(15, 61, 46, 0.18);
 }
 
+.form-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-03);
+  margin-bottom: var(--space-02);
+}
+
+.form-label-row .form-label {
+  margin-bottom: 0;
+}
+
+.auth-link-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--med-green-bright);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.auth-link-btn:hover {
+  color: var(--med-green);
+}
+
+.auth-back-btn {
+  margin-top: var(--space-04);
+}
+
 .auth-card__title {
   font-family: var(--font-display);
   font-size: var(--font-size-2xl);

@@ -53,6 +53,17 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    /** Password reset (hashed 6-digit code) */
+    resetPasswordToken: {
+      type: String,
+      select: false,
+      default: '',
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
+      default: null,
+    },
   },
   {
     timestamps: true,

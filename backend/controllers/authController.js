@@ -1,10 +1,16 @@
 const User = require('../models/User');
 const { signToken, formatUser } = require('../middleware/auth');
 const { avatarsDir } = require('../middleware/upload');
+const { sendEmail } = require('../utils/email');
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
 const PUBLIC_ROLES = ['Uploader', 'Recipient'];
+
+function hashResetCode(code) {
+  return crypto.createHash('sha256').update(String(code)).digest('hex');
+}
 
 async function register(req, res, next) {
   try {
@@ -202,6 +208,120 @@ async function removeProfileImage(req, res, next) {
   }
 }
 
+/**
+ * POST /api/auth/forgot-password — email a 6-digit reset code
+ */
+async function forgotPassword(req, res, next) {
+  try {
+    const email = String(req.body.email || '')
+      .toLowerCase()
+      .trim();
+
+    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+      return res.status(400).json({ message: 'Enter a valid email address.' });
+    }
+
+    const user = await User.findOne({ email });
+    // Same response whether or not the account exists (avoid email fishing)
+    const okMessage =
+      'If that email is registered, a reset code was sent. Check your inbox (and spam).';
+
+    if (!user) {
+      return res.status(200).json({ message: okMessage });
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    user.resetPasswordToken = hashResetCode(code);
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save({ validateBeforeSave: false });
+
+    const mail = await sendEmail({
+      to: user.email,
+      subject: 'MediChain password reset code',
+      text: [
+        `Hello ${user.name},`,
+        '',
+        `Your MediChain password reset code is: ${code}`,
+        '',
+        'This code expires in 15 minutes.',
+        'If you did not request a reset, you can ignore this email.',
+      ].join('\n'),
+      html: `
+        <p>Hello ${user.name},</p>
+        <p>Your MediChain password reset code is:</p>
+        <p style="font-size:24px;font-weight:700;letter-spacing:4px;">${code}</p>
+        <p>This code expires in 15 minutes.</p>
+        <p>If you did not request a reset, ignore this email.</p>
+      `,
+    });
+
+    if (!mail.sent) {
+      return res.status(503).json({
+        message:
+          mail.reason === 'SMTP not configured'
+            ? 'Email is not configured on the server yet. Ask an admin to set up Gmail SMTP.'
+            : `Could not send reset email: ${mail.reason || 'unknown error'}`,
+      });
+    }
+
+    return res.status(200).json({ message: okMessage });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+/**
+ * POST /api/auth/reset-password — verify code and set new password
+ */
+async function resetPassword(req, res, next) {
+  try {
+    const email = String(req.body.email || '')
+      .toLowerCase()
+      .trim();
+    const code = String(req.body.code || '').trim();
+    const newPassword = String(req.body.newPassword || '');
+
+    if (!email || !code || !newPassword) {
+      return res.status(400).json({
+        message: 'Email, reset code, and new password are required.',
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: 'Password must be at least 6 characters.',
+      });
+    }
+
+    const user = await User.findOne({ email }).select(
+      '+resetPasswordToken +resetPasswordExpires +password'
+    );
+
+    if (
+      !user ||
+      !user.resetPasswordToken ||
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires.getTime() < Date.now() ||
+      user.resetPasswordToken !== hashResetCode(code)
+    ) {
+      return res.status(400).json({
+        message: 'Invalid or expired reset code. Request a new one.',
+      });
+    }
+
+    user.password = newPassword;
+    user.resetPasswordToken = '';
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    return res.status(200).json({
+      message: 'Password updated. You can sign in with your new password.',
+    });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 module.exports = {
   register,
   login,
@@ -209,4 +329,6 @@ module.exports = {
   listPatients,
   uploadProfileImage,
   removeProfileImage,
+  forgotPassword,
+  resetPassword,
 };

@@ -28,24 +28,58 @@
           <h1 class="auth-card__title">MediChain</h1>
         </div>
       </div>
-      <p class="auth-card__subtitle">Sign in to manage and verify blockchain-secured medical reports</p>
+      <p class="auth-card__subtitle" id="auth-subtitle">Sign in to manage and verify blockchain-secured medical reports</p>
 
       <div id="notification-area"></div>
 
-      <form id="login-form" novalidate>
-        <div class="form-group">
-          <label class="form-label" for="email">Work email</label>
-          <input class="form-input" type="email" id="email" name="email" autocomplete="email" required placeholder="name@hospital.org">
-        </div>
+      <div id="auth-panel-login">
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="email">Work email</label>
+            <input class="form-input" type="email" id="email" name="email" autocomplete="email" required placeholder="name@hospital.org">
+          </div>
 
-        <div class="form-group">
-          <label class="form-label" for="password">Password</label>
-          <input class="form-input" type="password" id="password" name="password" autocomplete="current-password" required placeholder="Enter your password">
-          <span class="form-helper">Use your hospital password, or the starter account password if you are using a seeded login.</span>
-        </div>
+          <div class="form-group">
+            <div class="form-label-row">
+              <label class="form-label" for="password">Password</label>
+              <button type="button" class="auth-link-btn" id="show-reset-btn">Forgot password?</button>
+            </div>
+            <input class="form-input" type="password" id="password" name="password" autocomplete="current-password" required placeholder="Enter your password">
+            <span class="form-helper">Use your hospital password, or the starter account password if you are using a seeded login.</span>
+          </div>
 
-        <button type="submit" class="btn btn--primary btn--full">Sign in</button>
-      </form>
+          <button type="submit" class="btn btn--primary btn--full">Sign in</button>
+        </form>
+      </div>
+
+      <div id="auth-panel-reset" hidden>
+        <form id="reset-request-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="reset-email">Account email</label>
+            <input class="form-input" type="email" id="reset-email" name="resetEmail" autocomplete="email" required placeholder="name@hospital.org">
+            <span class="form-helper">We’ll email a 6-digit code to this address.</span>
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">Send reset code</button>
+        </form>
+
+        <form id="reset-confirm-form" novalidate hidden>
+          <div class="form-group">
+            <label class="form-label" for="reset-code">Reset code</label>
+            <input class="form-input" type="text" id="reset-code" name="resetCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="6-digit code">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reset-password">New password</label>
+            <input class="form-input" type="password" id="reset-password" name="resetPassword" autocomplete="new-password" required placeholder="Minimum 6 characters">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="reset-password-confirm">Confirm new password</label>
+            <input class="form-input" type="password" id="reset-password-confirm" name="resetPasswordConfirm" autocomplete="new-password" required placeholder="Re-enter new password">
+          </div>
+          <button type="submit" class="btn btn--primary btn--full">Update password</button>
+        </form>
+
+        <button type="button" class="btn btn--ghost btn--full auth-back-btn" id="show-login-btn">Back to sign in</button>
+      </div>
 
       <div class="auth-card__footer">
         New to MediChain? <a href="register.html">Create an account</a>
