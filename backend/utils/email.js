@@ -1,6 +1,11 @@
 /**
  * Optional email delivery via SMTP.
  * If SMTP is not configured, emails are skipped (in-app notifications still work).
+ *
+ * Gmail notes:
+ * - Many local/campus networks break IPv6 → force IPv4 locally
+ * - Render sets RENDER=true; there we leave DNS family alone (IPv4-only can hang)
+ * - Prefer 465/SSL; fall back to 587/STARTTLS if connect times out
  */
 const nodemailer = require('nodemailer');
 
@@ -12,41 +17,64 @@ function isEmailConfigured() {
   );
 }
 
-function getTransporter() {
-  if (!isEmailConfigured()) return null;
+function isGmailHost(host) {
+  const h = String(host || '').toLowerCase();
+  return h === 'smtp.gmail.com' || h.endsWith('.gmail.com');
+}
 
+function buildTransportOptions({ port, secure }) {
   const host = String(process.env.SMTP_HOST || '').trim();
-  const isGmail = /gmail\.com$/i.test(host) || host === 'smtp.gmail.com';
+  const onRender = String(process.env.RENDER || '').toLowerCase() === 'true';
 
-  // Gmail on this network: port 587/IPv6 often fails with ENETUNREACH.
-  // Always force 465 + IPv4 for Gmail regardless of stale env in a long-running process.
-  let port = Number(process.env.SMTP_PORT || 465);
-  let secure =
-    process.env.SMTP_SECURE !== undefined
-      ? String(process.env.SMTP_SECURE) === 'true'
-      : port === 465;
-
-  if (isGmail) {
-    port = 465;
-    secure = true;
-  }
-
-  console.log(`[MediChain Email] SMTP transport → ${host}:${port} (secure=${secure}, ipv4)`);
-
-  return nodemailer.createTransport({
+  const opts = {
     host,
     port,
     secure,
     requireTLS: !secure && port === 587,
-    family: 4,
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 20000,
-  });
+    connectionTimeout: Number(process.env.SMTP_CONNECTION_TIMEOUT || 30000),
+    greetingTimeout: Number(process.env.SMTP_GREETING_TIMEOUT || 30000),
+    socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT || 45000),
+  };
+
+  // Local/campus fix only — forcing IPv4 on Render can cause Connection timeout
+  if (!onRender) {
+    opts.family = 4;
+  }
+
+  return opts;
+}
+
+function getTransportAttempts() {
+  const host = String(process.env.SMTP_HOST || '').trim();
+  const configuredPort = Number(process.env.SMTP_PORT || 465);
+  const configuredSecure =
+    process.env.SMTP_SECURE !== undefined
+      ? String(process.env.SMTP_SECURE) === 'true'
+      : configuredPort === 465;
+
+  if (!isGmailHost(host)) {
+    return [{ port: configuredPort, secure: configuredSecure }];
+  }
+
+  // Gmail: try SSL 465 first, then STARTTLS 587
+  const attempts = [
+    { port: 465, secure: true },
+    { port: 587, secure: false },
+  ];
+
+  // Put env-preferred port first if it differs
+  if (configuredPort === 587) {
+    return [
+      { port: 587, secure: false },
+      { port: 465, secure: true },
+    ];
+  }
+
+  return attempts;
 }
 
 /**
@@ -62,24 +90,35 @@ async function sendEmail({ to, subject, text, html }) {
     return { sent: false, reason: 'SMTP not configured' };
   }
 
-  try {
-    const transporter = getTransporter();
-    const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const attempts = getTransportAttempts();
+  let lastError = '';
 
-    await transporter.sendMail({
-      from: `"MediChain Hospital" <${from}>`,
-      to,
-      subject,
-      text,
-      html: html || `<p>${text}</p>`,
-    });
+  for (const attempt of attempts) {
+    try {
+      const opts = buildTransportOptions(attempt);
+      console.log(
+        `[MediChain Email] Trying ${opts.host}:${opts.port} (secure=${opts.secure}, family=${opts.family || 'auto'})`
+      );
 
-    console.log(`[MediChain Email] Sent → ${to} | ${subject}`);
-    return { sent: true };
-  } catch (err) {
-    console.error('[MediChain Email] Failed:', err.message);
-    return { sent: false, reason: err.message };
+      const transporter = nodemailer.createTransport(opts);
+      await transporter.sendMail({
+        from: `"MediChain Hospital" <${from}>`,
+        to,
+        subject,
+        text,
+        html: html || `<p>${text}</p>`,
+      });
+
+      console.log(`[MediChain Email] Sent → ${to} | ${subject} via :${opts.port}`);
+      return { sent: true };
+    } catch (err) {
+      lastError = err.message || String(err);
+      console.error(`[MediChain Email] Attempt :${attempt.port} failed:`, lastError);
+    }
   }
+
+  return { sent: false, reason: lastError || 'All SMTP attempts failed' };
 }
 
 module.exports = {
