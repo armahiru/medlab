@@ -27,6 +27,7 @@ const allowedOrigins = new Set([
   FRONTEND_ORIGIN,
   'http://127.0.0.1:3000',
   'http://localhost:3000',
+  'https://medlab-v9bz.onrender.com', // Production frontend
 ]);
 
 function isLocalDevOrigin(origin) {
