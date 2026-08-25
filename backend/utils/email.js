@@ -15,18 +15,29 @@ function isEmailConfigured() {
 function getTransporter() {
   if (!isEmailConfigured()) return null;
 
-  const port = Number(process.env.SMTP_PORT || 465);
-  const secure =
+  const host = String(process.env.SMTP_HOST || '').trim();
+  const isGmail = /gmail\.com$/i.test(host) || host === 'smtp.gmail.com';
+
+  // Gmail on this network: port 587/IPv6 often fails with ENETUNREACH.
+  // Always force 465 + IPv4 for Gmail regardless of stale env in a long-running process.
+  let port = Number(process.env.SMTP_PORT || 465);
+  let secure =
     process.env.SMTP_SECURE !== undefined
       ? String(process.env.SMTP_SECURE) === 'true'
       : port === 465;
 
+  if (isGmail) {
+    port = 465;
+    secure = true;
+  }
+
+  console.log(`[MediChain Email] SMTP transport → ${host}:${port} (secure=${secure}, ipv4)`);
+
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host,
     port,
     secure,
     requireTLS: !secure && port === 587,
-    // Prefer IPv4 — many campus/home networks cannot reach Gmail over IPv6
     family: 4,
     auth: {
       user: process.env.SMTP_USER,
