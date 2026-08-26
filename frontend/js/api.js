@@ -85,6 +85,7 @@ const Api = {
     return this.request('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
+      timeoutMs: 20000,
     });
   },
 

@@ -6,7 +6,7 @@
 const nodemailer = require('nodemailer');
 
 function isResendConfigured() {
-  return !!process.env.RESEND_API_KEY;
+  return !!String(process.env.RESEND_API_KEY || '').trim();
 }
 
 function isSmtpConfigured() {
@@ -21,14 +21,26 @@ function isEmailConfigured() {
   return isResendConfigured() || isSmtpConfigured();
 }
 
+function isOnRender() {
+  return String(process.env.RENDER || '').toLowerCase() === 'true';
+}
+
 function isGmailHost(host) {
   const h = String(host || '').toLowerCase();
   return h === 'smtp.gmail.com' || h.endsWith('.gmail.com');
 }
 
+/** Resend only allows verified domains — never send From a Gmail address through Resend. */
+function getResendFrom() {
+  const configured = String(process.env.RESEND_FROM || '').trim();
+  if (configured && !/@gmail\.com$/i.test(configured) && !/@googlemail\.com$/i.test(configured)) {
+    return configured;
+  }
+  return 'MediChain <beth.t@example.com>';
+}
+
 function buildTransportOptions({ port, secure }) {
   const host = String(process.env.SMTP_HOST || '').trim();
-  const onRender = String(process.env.RENDER || '').toLowerCase() === 'true';
 
   const opts = {
     host,
@@ -44,7 +56,7 @@ function buildTransportOptions({ port, secure }) {
     socketTimeout: Number(process.env.SMTP_SOCKET_TIMEOUT || 45000),
   };
 
-  if (!onRender) {
+  if (!isOnRender()) {
     opts.family = 4;
   }
 
@@ -77,26 +89,36 @@ function getTransportAttempts() {
 }
 
 async function sendViaResend({ to, subject, text, html }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from =
-    process.env.RESEND_FROM ||
-    process.env.SMTP_FROM ||
-    'MediChain <beth.t@example.com>';
+  const apiKey = String(process.env.RESEND_API_KEY || '').trim();
+  const from = getResendFrom();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
 
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from,
-      to: [to],
-      subject,
-      text,
-      html: html || `<p>${text}</p>`,
-    }),
-  });
+  let response;
+  try {
+    response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      signal: controller.signal,
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject,
+        text,
+        html: html || `<p>${text}</p>`,
+      }),
+    });
+  } catch (err) {
+    if (err && err.name === 'AbortError') {
+      throw new Error('Resend request timed out');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
@@ -153,16 +175,19 @@ async function sendEmail({ to, subject, text, html }) {
     return { sent: false, reason: 'Email not configured' };
   }
 
-  // Prefer Resend on hosted deploys (HTTPS — not blocked like Gmail SMTP)
-  if (isResendConfigured()) {
+  // Render blocks Gmail SMTP — never fall back there (it hangs until the browser times out)
+  if (isOnRender() || isResendConfigured()) {
+    if (!isResendConfigured()) {
+      return {
+        sent: false,
+        reason: 'Set RESEND_API_KEY on Render. Gmail SMTP is not used in production.',
+      };
+    }
     try {
       return await sendViaResend({ to, subject, text, html });
     } catch (err) {
       console.error('[MediChain Email] Resend failed:', err.message);
-      if (!isSmtpConfigured()) {
-        return { sent: false, reason: err.message };
-      }
-      console.log('[MediChain Email] Falling back to SMTP…');
+      return { sent: false, reason: err.message };
     }
   }
 
