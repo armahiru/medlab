@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'notification-area',
         'error',
         'Could not send link',
-        FirebaseAuth.firebaseError(err)
+        err.message || FirebaseAuth.firebaseError(err)
       );
     } finally {
       HCI.setBusy(submitBtn, false);

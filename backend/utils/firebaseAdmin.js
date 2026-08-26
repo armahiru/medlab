@@ -1,62 +1,89 @@
 /**
- * Firebase Admin — used to verify ID tokens and ensure Auth users exist
+ * Firebase Admin — verify ID tokens and ensure Auth users exist
  * so password-reset emails can be sent by Firebase (not Gmail/Resend).
+ *
+ * firebase-admin v14 uses modular exports (getApps / getAuth / cert).
+ * The old `admin.apps.length` / `admin.auth()` API is undefined and throws
+ * "Cannot read properties of undefined (reading 'length')".
  */
-let admin;
+let initializeApp;
+let getApps;
+let cert;
+let getAuth;
+let adminLoadError = null;
+
 try {
-  admin = require('firebase-admin');
-} catch {
-  admin = null;
+  ({ initializeApp, getApps, cert } = require('firebase-admin/app'));
+  ({ getAuth } = require('firebase-admin/auth'));
+} catch (err) {
+  adminLoadError = err;
 }
 
 function isFirebaseAdminConfigured() {
   return !!(
     process.env.FIREBASE_PROJECT_ID &&
     process.env.FIREBASE_CLIENT_EMAIL &&
-    process.env.FIREBASE_PRIVATE_KEY
+    process.env.FIREBASE_PRIVATE_KEY &&
+    initializeApp &&
+    getAuth &&
+    cert
   );
 }
 
-function getFirebaseAdmin() {
-  if (!admin || !isFirebaseAdminConfigured()) return null;
+function normalizePrivateKey(raw) {
+  let key = String(raw || '').trim();
+  if (
+    (key.startsWith('"') && key.endsWith('"')) ||
+    (key.startsWith("'") && key.endsWith("'"))
+  ) {
+    key = key.slice(1, -1);
+  }
+  return key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n').trim();
+}
 
-  if (!admin.apps.length) {
-    const privateKey = String(process.env.FIREBASE_PRIVATE_KEY)
-      .replace(/\\n/g, '\n')
-      .replace(/^"|"$/g, '');
-
-    admin.initializeApp({
-      credential: admin.credential.cert({
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey,
-      }),
-    });
+function getAuthInstance() {
+  if (adminLoadError) {
+    throw new Error(
+      `Firebase Admin SDK failed to load: ${adminLoadError.message}`
+    );
+  }
+  if (!isFirebaseAdminConfigured()) {
+    throw new Error('Firebase Admin is not configured');
   }
 
-  return admin;
+  if (!getApps().length) {
+    try {
+      initializeApp({
+        credential: cert({
+          projectId: process.env.FIREBASE_PROJECT_ID,
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          privateKey: normalizePrivateKey(process.env.FIREBASE_PRIVATE_KEY),
+        }),
+      });
+    } catch (err) {
+      console.error('[MediChain] Firebase Admin init failed:', err.message);
+      throw new Error(
+        'Firebase Admin failed to start. Check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.'
+      );
+    }
+  }
+
+  return getAuth();
 }
 
 async function verifyIdToken(idToken) {
-  const app = getFirebaseAdmin();
-  if (!app) {
-    throw new Error('Firebase Admin is not configured');
-  }
-  return app.auth().verifyIdToken(idToken);
+  return getAuthInstance().verifyIdToken(idToken);
 }
 
 async function ensureAuthUser(email, displayName) {
-  const app = getFirebaseAdmin();
-  if (!app) {
-    throw new Error('Firebase Admin is not configured');
-  }
+  const auth = getAuthInstance();
 
   try {
-    return await app.auth().getUserByEmail(email);
+    return await auth.getUserByEmail(email);
   } catch (err) {
     if (err.code !== 'auth/user-not-found') throw err;
     const crypto = require('crypto');
-    return app.auth().createUser({
+    return auth.createUser({
       email,
       displayName: displayName || email,
       password: crypto.randomBytes(24).toString('hex'),
@@ -66,7 +93,6 @@ async function ensureAuthUser(email, displayName) {
 
 module.exports = {
   isFirebaseAdminConfigured,
-  getFirebaseAdmin,
   verifyIdToken,
   ensureAuthUser,
 };

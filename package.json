@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Simulated Blockchain-Based Medical Report Management and Distribution System",
   "main": "backend/server.js",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "frontend": "npx --yes serve frontend -p 3000",
     "backend": "node backend/server.js",

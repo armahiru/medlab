@@ -306,6 +306,12 @@ async function forgotPassword(req, res, next) {
 
     return res.status(200).json({ message: okMessage, ready: true });
   } catch (err) {
+    console.error('[MediChain] forgot-password:', err.message);
+    if (err.code && String(err.code).startsWith('auth/')) {
+      return res.status(503).json({
+        message: 'Firebase could not prepare a reset for this account. Check Firebase Admin settings.',
+      });
+    }
     return next(err);
   }
 }
