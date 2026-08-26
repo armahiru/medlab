@@ -87,7 +87,19 @@ document.addEventListener('DOMContentLoaded', () => {
     UI.showLoading(true);
 
     try {
-      await Api.register(name, email, password, role, patientId || undefined, phone || undefined);
+      let firebaseUid = '';
+      if (FirebaseAuth.isConfigured()) {
+        try {
+          const fbUser = await FirebaseAuth.register(email, password);
+          firebaseUid = fbUser.uid;
+        } catch (err) {
+          if (err && err.code !== 'auth/email-already-in-use') {
+            throw new Error(FirebaseAuth.firebaseError(err));
+          }
+        }
+      }
+
+      await Api.register(name, email, password, role, patientId || undefined, phone || undefined, firebaseUid);
       window.location.href = 'login.html?registered=1';
     } catch (err) {
       UI.showNotification('notification-area', 'error', 'Registration failed', err.message);

@@ -16,4 +16,16 @@ const CONFIG = {
   TOKEN_KEY: 'medichain_token',
   USER_KEY: 'medichain_user',
   APP_NAME: 'MediChain',
+  /**
+   * Firebase web config (Project settings → Your apps → SDK setup).
+   * Leave apiKey empty until the Firebase project is created.
+   */
+  FIREBASE: {
+    apiKey: 'AIzaSyCofaqrnupLuVC0uggd0icNqSHxeaklvwo',
+    authDomain: 'medchain-992a5.firebaseapp.com',
+    projectId: 'medchain-992a5',
+    storageBucket: 'medchain-992a5.firebasestorage.app',
+    messagingSenderId: '36277661255',
+    appId: '1:36277661255:web:c14769269638ce6be78b62',
+  },
 };

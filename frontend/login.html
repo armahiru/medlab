@@ -57,25 +57,9 @@
           <div class="form-group">
             <label class="form-label" for="reset-email">Account email</label>
             <input class="form-input" type="email" id="reset-email" name="resetEmail" autocomplete="email" required placeholder="name@hospital.org">
-            <span class="form-helper">We’ll email a 6-digit code to this address.</span>
+            <span class="form-helper">Firebase will email a reset link. Open it, set a new password, then sign in.</span>
           </div>
-          <button type="submit" class="btn btn--primary btn--full">Send reset code</button>
-        </form>
-
-        <form id="reset-confirm-form" novalidate hidden>
-          <div class="form-group">
-            <label class="form-label" for="reset-code">Reset code</label>
-            <input class="form-input" type="text" id="reset-code" name="resetCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required placeholder="6-digit code">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reset-password">New password</label>
-            <input class="form-input" type="password" id="reset-password" name="resetPassword" autocomplete="new-password" required placeholder="Minimum 6 characters">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="reset-password-confirm">Confirm new password</label>
-            <input class="form-input" type="password" id="reset-password-confirm" name="resetPasswordConfirm" autocomplete="new-password" required placeholder="Re-enter new password">
-          </div>
-          <button type="submit" class="btn btn--primary btn--full">Update password</button>
+          <button type="submit" class="btn btn--primary btn--full">Send reset link</button>
         </form>
 
         <button type="button" class="btn btn--ghost btn--full auth-back-btn" id="show-login-btn">Back to sign in</button>
@@ -87,7 +71,10 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="js/config.js"></script>
+  <script src="js/firebase.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/api.js"></script>
   <script src="js/hci.js"></script>

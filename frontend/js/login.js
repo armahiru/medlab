@@ -1,5 +1,5 @@
 /**
- * MediChain — Login + password reset panel
+ * MediChain — Login + Firebase password reset
  */
 document.addEventListener('DOMContentLoaded', () => {
   if (Auth.redirectIfAuthenticated()) return;
@@ -15,13 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const passwordInput = document.getElementById('password');
 
   const requestForm = document.getElementById('reset-request-form');
-  const confirmForm = document.getElementById('reset-confirm-form');
   const resetEmailInput = document.getElementById('reset-email');
-  const resetCodeInput = document.getElementById('reset-code');
-  const resetPasswordInput = document.getElementById('reset-password');
-  const resetPasswordConfirmInput = document.getElementById('reset-password-confirm');
-
-  let pendingResetEmail = '';
 
   function showLoginRoom() {
     resetPanel.hidden = true;
@@ -34,9 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showResetRoom() {
     loginPanel.hidden = true;
     resetPanel.hidden = false;
-    requestForm.hidden = false;
-    confirmForm.hidden = true;
-    subtitle.textContent = 'Reset your password with a code sent to your email';
+    subtitle.textContent = 'Reset your password with a Firebase email link';
     UI.clearNotifications('notification-area');
     if (emailInput.value.trim()) {
       resetEmailInput.value = emailInput.value.trim();
@@ -58,6 +50,28 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (params.get('reset') === '1') {
     showResetRoom();
+  }
+
+  async function signIn(email, password) {
+    if (FirebaseAuth.isConfigured()) {
+      try {
+        const idToken = await FirebaseAuth.signIn(email, password);
+        return Api.firebaseLogin(idToken);
+      } catch (err) {
+        const code = err && err.code;
+        if (code === 'auth/user-not-found' || code === 'auth/invalid-credential' || code === 'auth/wrong-password') {
+          const data = await Api.login(email, password);
+          try {
+            await FirebaseAuth.register(email, password);
+          } catch {
+            /* already exists or client not ready — Mongo login still succeeded */
+          }
+          return data;
+        }
+        throw new Error(FirebaseAuth.firebaseError(err));
+      }
+    }
+    return Api.login(email, password);
   }
 
   loginForm.addEventListener('submit', async (e) => {
@@ -98,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     UI.showLoading(true);
 
     try {
-      const data = await Api.login(email, password);
+      const data = await signIn(email, password);
       Auth.setSession(data.token, data.user);
       HCI.announce('Signed in successfully');
       Auth.redirectByRole();
@@ -132,95 +146,44 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    if (!FirebaseAuth.isConfigured()) {
+      UI.showNotification(
+        'notification-area',
+        'error',
+        'Firebase not set up',
+        'Add your Firebase web config in frontend/js/config.js first.'
+      );
+      return;
+    }
+
     const submitBtn = requestForm.querySelector('[type="submit"]');
     HCI.setBusy(submitBtn, true, 'Sending…');
     UI.showLoading(true);
 
     try {
-      const data = await Api.forgotPassword(email);
-      pendingResetEmail = email;
-      requestForm.hidden = true;
-      confirmForm.hidden = false;
+      await Api.forgotPassword(email);
+      try {
+        await FirebaseAuth.sendResetEmail(email);
+      } catch (err) {
+        if (err && err.code !== 'auth/user-not-found') {
+          throw err;
+        }
+      }
       UI.showNotification(
         'notification-area',
         'success',
         'Check your email',
-        data.message || 'If that email is registered, a reset code was sent.'
+        'If that address is registered, Firebase sent a reset link. Open it, then sign in.'
       );
-      resetCodeInput.focus();
     } catch (err) {
       UI.showNotification(
         'notification-area',
         'error',
-        'Could not send code',
-        err.message || 'Try again in a moment.'
+        'Could not send link',
+        FirebaseAuth.firebaseError(err)
       );
     } finally {
       HCI.setBusy(submitBtn, false);
-      UI.showLoading(false);
-    }
-  });
-
-  confirmForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    UI.clearNotifications('notification-area');
-    HCI.clearFormErrors(confirmForm);
-
-    const code = resetCodeInput.value.trim();
-    const newPassword = resetPasswordInput.value;
-    const confirmPassword = resetPasswordConfirmInput.value;
-    let valid = true;
-
-    if (!/^\d{6}$/.test(code)) {
-      HCI.setFieldError(resetCodeInput, 'Enter the 6-digit code from your email.');
-      valid = false;
-    }
-    if (!newPassword || newPassword.length < 6) {
-      HCI.setFieldError(resetPasswordInput, 'Use at least 6 characters.');
-      valid = false;
-    }
-    if (newPassword !== confirmPassword) {
-      HCI.setFieldError(resetPasswordConfirmInput, 'Passwords do not match.');
-      valid = false;
-    }
-    if (!pendingResetEmail) {
-      UI.showNotification(
-        'notification-area',
-        'error',
-        'Start again',
-        'Request a new reset code first.'
-      );
-      return;
-    }
-    if (!valid) return;
-
-    const submitBtn = confirmForm.querySelector('[type="submit"]');
-    HCI.setBusy(submitBtn, true, 'Updating…');
-    UI.showLoading(true);
-
-    try {
-      const data = await Api.resetPassword(pendingResetEmail, code, newPassword);
-      UI.showNotification(
-        'notification-area',
-        'success',
-        'Password updated',
-        data.message || 'You can sign in with your new password.'
-      );
-      emailInput.value = pendingResetEmail;
-      passwordInput.value = '';
-      pendingResetEmail = '';
-      confirmForm.reset();
-      showLoginRoom();
-      passwordInput.focus();
-    } catch (err) {
-      UI.showNotification(
-        'notification-area',
-        'error',
-        'Reset failed',
-        err.message || 'Invalid or expired code.'
-      );
-      HCI.setBusy(submitBtn, false);
-    } finally {
       UI.showLoading(false);
     }
   });

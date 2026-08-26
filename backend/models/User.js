@@ -47,6 +47,12 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: '',
     },
+    /** Firebase Auth uid (password reset / sign-in emails) */
+    firebaseUid: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     /** Profile photo filename under uploads/avatars (optional) */
     profileImage: {
       type: String,

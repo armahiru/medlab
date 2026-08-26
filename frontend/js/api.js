@@ -71,13 +71,21 @@ const Api = {
     });
   },
 
-  register(name, email, password, role, patientId, phone) {
+  register(name, email, password, role, patientId, phone, firebaseUid) {
     const payload = { name, email, password, role };
     if (patientId) payload.patientId = patientId;
     if (phone) payload.phone = phone;
+    if (firebaseUid) payload.firebaseUid = firebaseUid;
     return this.request('/auth/register', {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  },
+
+  firebaseLogin(idToken) {
+    return this.request('/auth/firebase-login', {
+      method: 'POST',
+      body: JSON.stringify({ idToken }),
     });
   },
 
@@ -86,13 +94,6 @@ const Api = {
       method: 'POST',
       body: JSON.stringify({ email }),
       timeoutMs: 20000,
-    });
-  },
-
-  resetPassword(email, code, newPassword) {
-    return this.request('/auth/reset-password', {
-      method: 'POST',
-      body: JSON.stringify({ email, code, newPassword }),
     });
   },
 

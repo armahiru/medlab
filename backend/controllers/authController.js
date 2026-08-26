@@ -1,16 +1,25 @@
 const User = require('../models/User');
 const { signToken, formatUser } = require('../middleware/auth');
 const { avatarsDir } = require('../middleware/upload');
-const { sendEmail } = require('../utils/email');
 const { notifyUser } = require('../utils/notify');
-const crypto = require('crypto');
+const { verifyIdToken, ensureAuthUser, isFirebaseAdminConfigured } = require('../utils/firebaseAdmin');
 const fs = require('fs');
 const path = require('path');
 
 const PUBLIC_ROLES = ['Uploader', 'Recipient'];
 
-function hashResetCode(code) {
-  return crypto.createHash('sha256').update(String(code)).digest('hex');
+function notifyPatientSignIn(user) {
+  if (user.role !== 'Recipient') return;
+  const signedInAt = new Date().toLocaleString();
+  notifyUser({
+    userId: user._id,
+    type: 'system',
+    title: 'Signed in to MediChain',
+    message: `You signed in successfully at ${signedInAt}. If this wasn’t you, reset your password.`,
+    link: 'notifications.html',
+  }).catch((err) => {
+    console.error('[MediChain] Login notice failed:', err.message);
+  });
 }
 
 async function register(req, res, next) {
@@ -70,6 +79,7 @@ async function register(req, res, next) {
       role,
       patientId: normalizedPatientId,
       phone: String(phone || '').trim(),
+      firebaseUid: String(req.body.firebaseUid || '').trim(),
     });
 
     const token = signToken(user);
@@ -104,31 +114,7 @@ async function login(req, res, next) {
     }
 
     const token = signToken(user);
-
-    // Patients get an immediate Gmail + in-app notice on sign-in
-    if (user.role === 'Recipient') {
-      const signedInAt = new Date().toLocaleString();
-      notifyUser({
-        userId: user._id,
-        type: 'system',
-        title: 'Signed in to MediChain',
-        message: `You signed in successfully at ${signedInAt}. If this wasn’t you, reset your password.`,
-        link: 'notifications.html',
-        emailSubject: 'MediChain: New sign-in on your patient account',
-        emailBody: [
-          `Hello ${user.name},`,
-          '',
-          'Your MediChain patient account just signed in.',
-          `Patient ID: ${user.patientId || 'N/A'}`,
-          `Time: ${signedInAt}`,
-          '',
-          'If this was you, no action is needed.',
-          'If you did not sign in, use Forgot password on the sign-in page immediately.',
-        ].join('\n'),
-      }).catch((err) => {
-        console.error('[MediChain] Login email failed:', err.message);
-      });
-    }
+    notifyPatientSignIn(user);
 
     return res.status(200).json({
       message: 'Signed in successfully.',
@@ -136,6 +122,56 @@ async function login(req, res, next) {
       user: formatUser(user),
     });
   } catch (err) {
+    return next(err);
+  }
+}
+
+/**
+ * POST /api/auth/firebase-login — verify Firebase ID token, issue MediChain JWT
+ */
+async function firebaseLogin(req, res, next) {
+  try {
+    const idToken = String(req.body.idToken || '').trim();
+    if (!idToken) {
+      return res.status(400).json({ message: 'Firebase ID token is required.' });
+    }
+    if (!isFirebaseAdminConfigured()) {
+      return res.status(503).json({
+        message: 'Firebase is not configured on the server yet.',
+      });
+    }
+
+    const decoded = await verifyIdToken(idToken);
+    const email = String(decoded.email || '')
+      .toLowerCase()
+      .trim();
+    if (!email) {
+      return res.status(401).json({ message: 'Firebase account has no email.' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({
+        message: 'No MediChain profile for this email. Create an account first.',
+      });
+    }
+
+    if (!user.firebaseUid) {
+      user.firebaseUid = decoded.uid;
+      await user.save({ validateBeforeSave: false });
+    }
+
+    notifyPatientSignIn(user);
+
+    return res.status(200).json({
+      message: 'Signed in successfully.',
+      token: signToken(user),
+      user: formatUser(user),
+    });
+  } catch (err) {
+    if (err.code === 'auth/id-token-expired' || err.code === 'auth/argument-error') {
+      return res.status(401).json({ message: 'Firebase sign-in expired. Try again.' });
+    }
     return next(err);
   }
 }
@@ -235,7 +271,8 @@ async function removeProfileImage(req, res, next) {
 }
 
 /**
- * POST /api/auth/forgot-password — email a 6-digit reset code
+ * POST /api/auth/forgot-password
+ * Makes sure a Firebase Auth user exists so the client can send Firebase's reset email.
  */
 async function forgotPassword(req, res, next) {
   try {
@@ -247,102 +284,27 @@ async function forgotPassword(req, res, next) {
       return res.status(400).json({ message: 'Enter a valid email address.' });
     }
 
-    const user = await User.findOne({ email });
-    // Same response whether or not the account exists (avoid email fishing)
     const okMessage =
-      'If that email is registered, a reset code was sent. Check your inbox (and spam).';
+      'If that email is registered, a password reset link was sent. Check inbox and spam.';
 
+    if (!isFirebaseAdminConfigured()) {
+      return res.status(503).json({
+        message: 'Password reset is not ready yet. Firebase Admin is not configured.',
+      });
+    }
+
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(200).json({ message: okMessage });
     }
 
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    user.resetPasswordToken = hashResetCode(code);
-    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
-    await user.save({ validateBeforeSave: false });
-
-    const mail = await sendEmail({
-      to: user.email,
-      subject: 'MediChain password reset code',
-      text: [
-        `Hello ${user.name},`,
-        '',
-        `Your MediChain password reset code is: ${code}`,
-        '',
-        'This code expires in 15 minutes.',
-        'If you did not request a reset, you can ignore this email.',
-      ].join('\n'),
-      html: `
-        <p>Hello ${user.name},</p>
-        <p>Your MediChain password reset code is:</p>
-        <p style="font-size:24px;font-weight:700;letter-spacing:4px;">${code}</p>
-        <p>This code expires in 15 minutes.</p>
-        <p>If you did not request a reset, ignore this email.</p>
-      `,
-    });
-
-    if (!mail.sent) {
-      return res.status(503).json({
-        message:
-          mail.reason === 'SMTP not configured'
-            ? 'Email is not configured on the server yet. Ask an admin to set up Gmail SMTP.'
-            : `Could not send reset email: ${mail.reason || 'unknown error'}`,
-      });
+    const firebaseUser = await ensureAuthUser(email, user.name);
+    if (!user.firebaseUid && firebaseUser?.uid) {
+      user.firebaseUid = firebaseUser.uid;
+      await user.save({ validateBeforeSave: false });
     }
 
-    return res.status(200).json({ message: okMessage });
-  } catch (err) {
-    return next(err);
-  }
-}
-
-/**
- * POST /api/auth/reset-password — verify code and set new password
- */
-async function resetPassword(req, res, next) {
-  try {
-    const email = String(req.body.email || '')
-      .toLowerCase()
-      .trim();
-    const code = String(req.body.code || '').trim();
-    const newPassword = String(req.body.newPassword || '');
-
-    if (!email || !code || !newPassword) {
-      return res.status(400).json({
-        message: 'Email, reset code, and new password are required.',
-      });
-    }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        message: 'Password must be at least 6 characters.',
-      });
-    }
-
-    const user = await User.findOne({ email }).select(
-      '+resetPasswordToken +resetPasswordExpires +password'
-    );
-
-    if (
-      !user ||
-      !user.resetPasswordToken ||
-      !user.resetPasswordExpires ||
-      user.resetPasswordExpires.getTime() < Date.now() ||
-      user.resetPasswordToken !== hashResetCode(code)
-    ) {
-      return res.status(400).json({
-        message: 'Invalid or expired reset code. Request a new one.',
-      });
-    }
-
-    user.password = newPassword;
-    user.resetPasswordToken = '';
-    user.resetPasswordExpires = null;
-    await user.save();
-
-    return res.status(200).json({
-      message: 'Password updated. You can sign in with your new password.',
-    });
+    return res.status(200).json({ message: okMessage, ready: true });
   } catch (err) {
     return next(err);
   }
@@ -351,10 +313,10 @@ async function resetPassword(req, res, next) {
 module.exports = {
   register,
   login,
+  firebaseLogin,
   me,
   listPatients,
   uploadProfileImage,
   removeProfileImage,
   forgotPassword,
-  resetPassword,
 };
