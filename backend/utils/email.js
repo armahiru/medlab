@@ -30,13 +30,14 @@ function isGmailHost(host) {
   return h === 'smtp.gmail.com' || h.endsWith('.gmail.com');
 }
 
-/** Resend only allows verified domains — never send From a Gmail address through Resend. */
+/** Resend test sender (no custom domain). Only delivers to the Resend account email. */
 function getResendFrom() {
   const configured = String(process.env.RESEND_FROM || '').trim();
-  if (configured && !/@gmail\.com$/i.test(configured) && !/@googlemail\.com$/i.test(configured)) {
+  const blocked = /@(gmail\.com|googlemail\.com|example\.com)\s*>?$/i;
+  if (configured && !blocked.test(configured)) {
     return configured;
   }
-  return 'MediChain <beth.t@example.com>';
+  return 'MediChain <onboarding@resend.dev>';
 }
 
 function buildTransportOptions({ port, secure }) {
